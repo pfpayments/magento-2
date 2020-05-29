@@ -263,6 +263,12 @@ class TransactionService extends AbstractTransactionService
     {
         for ($i = 0; $i < 5; $i ++) {
             try {
+                $spaceId = $this->scopeConfig->getValue('postfinancecheckout_payment/general/space_id',
+                    ScopeInterface::SCOPE_STORE, $quote->getStoreId());
+                if ($quote->getPostfinancecheckoutSpaceId() != $spaceId) {
+                    return $this->createTransactionByQuote($quote);
+                }
+                
                 $transaction = $this->apiClient->getService(TransactionApiService::class)->read(
                     $quote->getPostfinancecheckoutSpaceId(), $quote->getPostfinancecheckoutTransactionId());
                 if (! ($transaction instanceof Transaction) || $transaction->getState() != TransactionState::PENDING) {
