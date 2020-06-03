@@ -10,6 +10,7 @@
  */
 namespace PostFinanceCheckout\Payment\Gateway\Command;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Psr\Log\LoggerInterface;
@@ -18,8 +19,9 @@ use PostFinanceCheckout\Payment\Helper\Locale as LocaleHelper;
 use PostFinanceCheckout\Payment\Model\ApiClient;
 use PostFinanceCheckout\Payment\Model\RefundJobFactory;
 use PostFinanceCheckout\Payment\Model\Service\LineItemReductionService;
+use PostFinanceCheckout\Payment\Model\Service\RefundService;
 use PostFinanceCheckout\Sdk\Model\RefundState;
-use PostFinanceCheckout\Sdk\Service\RefundService;
+use PostFinanceCheckout\Sdk\Service\RefundService as ApiRefundService;
 
 /**
  * Payment gateway command to refund a payment.
@@ -59,6 +61,12 @@ class RefundCommand implements CommandInterface
 
     /**
      *
+     * @var RefundService
+     */
+    private $refundService;
+
+    /**
+     *
      * @var ApiClient
      */
     private $apiClient;
@@ -70,17 +78,19 @@ class RefundCommand implements CommandInterface
      * @param LineItemReductionService $lineItemReductionService
      * @param RefundJobFactory $refundJobFactory
      * @param RefundJobRepositoryInterface $refundJobRepository
+     * @param RefundService $refundService
      * @param ApiClient $apiClient
      */
     public function __construct(LoggerInterface $logger, LocaleHelper $localeHelper,
         LineItemReductionService $lineItemReductionService, RefundJobFactory $refundJobFactory,
-        RefundJobRepositoryInterface $refundJobRepository, ApiClient $apiClient)
+        RefundJobRepositoryInterface $refundJobRepository, RefundService $refundService, ApiClient $apiClient)
     {
         $this->logger = $logger;
         $this->localeHelper = $localeHelper;
         $this->lineItemReductionService = $lineItemReductionService;
         $this->refundJobFactory = $refundJobFactory;
         $this->refundJobRepository = $refundJobRepository;
+        $this->refundService = $refundService;
         $this->apiClient = $apiClient;
     }
 
@@ -91,10 +101,16 @@ class RefundCommand implements CommandInterface
         $creditmemo = $payment->getCreditmemo();
 
         if ($creditmemo->getPostfinancecheckoutExternalId() == null) {
-            $refundJob = $this->refundJobRepository->getByOrderId($payment->getOrder()
-                ->getId());
             try {
-                $refund = $this->apiClient->getService(RefundService::class)->refund(
+                $refundJob = $this->refundJobRepository->getByOrderId($payment->getOrder()
+                    ->getId());
+            } catch (NoSuchEntityException $e) {
+                $refund = $this->refundService->createRefund($creditmemo);
+                $refundJob = $this->refundService->createRefundJob($creditmemo->getInvoice(), $refund);
+            }
+
+            try {
+                $refund = $this->apiClient->getService(ApiRefundService::class)->refund(
                     $creditmemo->getOrder()
                         ->getPostfinancecheckoutSpaceId(), $refundJob->getRefund());
             } catch (\PostFinanceCheckout\Sdk\ApiException $e) {

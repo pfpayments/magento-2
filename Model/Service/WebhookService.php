@@ -37,7 +37,7 @@ use PostFinanceCheckout\Sdk\Service\WebhookListenerService;
 use PostFinanceCheckout\Sdk\Service\WebhookUrlService;
 
 /**
- * Service to handler webhooks.
+ * Service to handle webhooks.
  */
 class WebhookService
 {
