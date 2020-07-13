@@ -111,6 +111,10 @@ class ConfigProvider implements ConfigProviderInterface
             ScopeInterface::SCOPE_STORE, $quote->getStoreId());
         $config['postfinancecheckout']['integrationMethod'] = $integrationMethod;
 
+        $config['postfinancecheckout']['restoreCartUrl'] = $quote->getStore()->getUrl('postfinancecheckout_payment/checkout/restoreCart', [
+            '_secure' => true
+        ]);
+
         if ($integrationMethod == IntegrationMethod::IFRAME) {
             try {
                 $config['postfinancecheckout']['javascriptUrl'] = $this->transactionService->getJavaScriptUrl($quote);
