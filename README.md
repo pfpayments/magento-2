@@ -1,16 +1,16 @@
-# PostFinance Checkout Magento 2.3
-This repository contains the Magento 2.3 extension that enables to process payments with [PostFinance Checkout](https://www.postfinance.ch/checkout/).
+# PostFinance Checkout Magento 2
+This repository contains the Magento 2 extension that enables to process payments with [PostFinance Checkout](https://www.postfinance.ch/checkout/).
 
 ###### To use this extension, a [PostFinance Checkout](https://www.postfinance.ch/checkout/) account is required.
 
 ## Requirements
 
-* [Magento 2](https://magento.com/) 2.3.x
-* [PHP](http://php.net/) 7.0.2 or later
+* [Magento 2](https://magento.com/) 2.3.x or later
+* [PHP](http://php.net/) 7.3 or later
 
 ## Documentation
 
-* [Documentation](https://plugin-documentation.postfinance-checkout.ch/pfpayments/magento-2.3/1.0.83/docs/en/documentation.html)
+* [Documentation](https://plugin-documentation.postfinance-checkout.ch/pfpayments/magento-2/1.0.84/docs/en/documentation.html)
 
 
 ## Support
@@ -28,4 +28,4 @@ We do provide special integrations for the following one step checkouts:
 
 ## License
 
-Please see the [license file](https://github.com/pfpayments/magento-2.3/blob/1.0.83/LICENSE) for more information.
+Please see the [license file](https://github.com/pfpayments/magento-2/blob/1.0.84/LICENSE) for more information.
