@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Magento 2
  *
- * This Magento 2 extension enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout/).
+ * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html/).
  *
  * @package PostFinanceCheckout_Payment
  * @author wallee AG (http://www.wallee.com/)

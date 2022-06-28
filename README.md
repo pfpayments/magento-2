@@ -1,9 +1,9 @@
 
 
 # PostFinance Checkout Magento 2
-This repository contains the Magento 2 extension that enables to process payments with [PostFinance Checkout](https://www.postfinance.ch/checkout/).
+This repository contains the Magento 2 extension that enables to process payments with [PostFinance Checkout](https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html/).
 
-###### To use this extension, a [PostFinance Checkout](https://www.postfinance.ch/checkout/) account is required.
+###### To use this extension, a [PostFinance Checkout](https://checkout.postfinance.ch/en-ch/user/signup) account is required.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ This repository contains the Magento 2 extension that enables to process payment
 
 ## Documentation
 
-* [Documentation](https://plugin-documentation.postfinance-checkout.ch/pfpayments/magento-2/1.1.8/docs/en/documentation.html)
+* [Documentation](https://plugin-documentation.postfinance-checkout.ch/pfpayments/magento-2/1.1.9/docs/en/documentation.html)
 
 
 ## Support
@@ -30,4 +30,4 @@ We do provide special integrations for the following one step checkouts:
 
 ## License
 
-Please see the [license file](https://github.com/pfpayments/magento-2/blob/1.1.8/LICENSE) for more information.
+Please see the [license file](https://github.com/pfpayments/magento-2/blob/1.1.9/LICENSE) for more information.
