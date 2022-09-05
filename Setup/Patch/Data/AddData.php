@@ -1,5 +1,5 @@
 <?php
-namespace Wallee\Payment\Setup\Patch\Data;
+namespace PostFinanceCheckout\Payment\Setup\Patch\Data;
 use \Magento\Framework\Setup\Patch\DataPatchInterface;
 use \Magento\Framework\Setup\Patch\PatchVersionInterface;
 use \Magento\Framework\Module\Setup\Migration;
@@ -57,7 +57,7 @@ class AddData implements DataPatchInterface, PatchVersionInterface
      */
 
     public static function getVersion(){
-        return '1.2.8';
+        return '1.3.1';
     }
 
     /**
