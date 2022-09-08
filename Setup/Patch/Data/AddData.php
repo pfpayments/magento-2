@@ -1,5 +1,5 @@
 <?php
-namespace Wallee\Payment\Setup\Patch\Data;
+namespace PostFinanceCheckout\Payment\Setup\Patch\Data;
 use \Magento\Framework\Setup\Patch\DataPatchInterface;
 use \Magento\Framework\Setup\Patch\PatchVersionInterface;
 use \Magento\Framework\Module\Setup\Migration;
@@ -8,7 +8,7 @@ use \Magento\Framework\Setup\ModuleDataSetupInterface;
 
 /**
  * Class AddData
- * @package Wallee\Payment\Setup\Patch\Data
+ * @package PostFinanceCheckout\Payment\Setup\Patch\Data
  */
 
 class AddData implements DataPatchInterface, PatchVersionInterface
@@ -17,7 +17,7 @@ class AddData implements DataPatchInterface, PatchVersionInterface
 
     /**
      *
-     * @param \Wallee\Payment\Model\Author $status
+     * @param \PostFinanceCheckout\Payment\Model\Author $status
      */
 
     public function __construct(
