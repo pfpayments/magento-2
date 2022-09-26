@@ -1,35 +1,35 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
   <table name="quote" resource="default">
-    <column xsi:type="bigint" name="wallee_space_id" padding="20" unsigned="true" nullable="true" identity="false" comment="wallee Payment Space Id"/>
-    <column xsi:type="bigint" name="wallee_transaction_id" padding="20" unsigned="true" nullable="true" identity="false" comment="wallee Payment Transaction Id"/>
-    <index referenceId="QUOTE_WALLEE_SPACE_ID_WALLEE_TRANSACTION_ID" indexType="btree">
-      <column name="wallee_space_id"/>
-      <column name="wallee_transaction_id"/>
+    <column xsi:type="bigint" name="postfinancecheckout_space_id" padding="20" unsigned="true" nullable="true" identity="false" comment="postfinancecheckout Payment Space Id"/>
+    <column xsi:type="bigint" name="postfinancecheckout_transaction_id" padding="20" unsigned="true" nullable="true" identity="false" comment="postfinancecheckout Payment Transaction Id"/>
+    <index referenceId="QUOTE_POSTFINANCECHECKOUT_SPACE_ID_POSTFINANCECHECKOUT_TRANSACTION_ID" indexType="btree">
+      <column name="postfinancecheckout_space_id"/>
+      <column name="postfinancecheckout_transaction_id"/>
     </index>
   </table>
   <table name="sales_order" resource="default">
-    <column xsi:type="bigint" name="wallee_space_id" padding="20" unsigned="true" nullable="true" identity="false" comment="wallee Payment Space Id"/>
-    <column xsi:type="bigint" name="wallee_transaction_id" padding="20" unsigned="true" nullable="true" identity="false" comment="wallee Payment Transaction Id"/>
-    <column xsi:type="boolean" name="wallee_authorized" nullable="true" comment="wallee Payment Authorized"/>
-    <column xsi:type="varchar" name="wallee_security_token" nullable="true" length="32" comment="wallee Payment Security Token"/>
-    <column xsi:type="timestamp" name="wallee_lock" on_update="false" nullable="true" comment="wallee Payment Lock"/>
-    <index referenceId="SALES_ORDER_WALLEE_SPACE_ID_WALLEE_TRANSACTION_ID" indexType="btree">
-      <column name="wallee_space_id"/>
-      <column name="wallee_transaction_id"/>
+    <column xsi:type="bigint" name="postfinancecheckout_space_id" padding="20" unsigned="true" nullable="true" identity="false" comment="postfinancecheckout Payment Space Id"/>
+    <column xsi:type="bigint" name="postfinancecheckout_transaction_id" padding="20" unsigned="true" nullable="true" identity="false" comment="postfinancecheckout Payment Transaction Id"/>
+    <column xsi:type="boolean" name="postfinancecheckout_authorized" nullable="true" comment="postfinancecheckout Payment Authorized"/>
+    <column xsi:type="varchar" name="postfinancecheckout_security_token" nullable="true" length="32" comment="postfinancecheckout Payment Security Token"/>
+    <column xsi:type="timestamp" name="postfinancecheckout_lock" on_update="false" nullable="true" comment="postfinancecheckout Payment Lock"/>
+    <index referenceId="SALES_ORDER_POSTFINANCECHECKOUT_SPACE_ID_POSTFINANCECHECKOUT_TRANSACTION_ID" indexType="btree">
+      <column name="postfinancecheckout_space_id"/>
+      <column name="postfinancecheckout_transaction_id"/>
     </index>
   </table>
   <table name="quote_payment" resource="default">
-    <column xsi:type="int" name="wallee_token" padding="9" unsigned="true" nullable="true" identity="false" comment="wallee Payment Token"/>
+    <column xsi:type="int" name="postfinancecheckout_token" padding="9" unsigned="true" nullable="true" identity="false" comment="postfinancecheckout Payment Token"/>
   </table>
   <table name="sales_invoice" resource="default">
-    <column xsi:type="boolean" name="wallee_capture_pending" nullable="true" comment="wallee Payment Capture Pending"/>
-    <column xsi:type="boolean" name="wallee_derecognized" nullable="true" comment="wallee Payment Derecognized"/>
+    <column xsi:type="boolean" name="postfinancecheckout_capture_pending" nullable="true" comment="postfinancecheckout Payment Capture Pending"/>
+    <column xsi:type="boolean" name="postfinancecheckout_derecognized" nullable="true" comment="postfinancecheckout Payment Derecognized"/>
   </table>
   <table name="sales_creditmemo" resource="default">
-    <column xsi:type="varchar" name="wallee_external_id" nullable="true" length="100" comment="wallee Payment External Id"/>
+    <column xsi:type="varchar" name="postfinancecheckout_external_id" nullable="true" length="100" comment="postfinancecheckout Payment External Id"/>
   </table>
-  <table name="wallee_payment_transaction_info" resource="default" engine="innodb" comment="wallee Payment Transaction Info">
+  <table name="postfinancecheckout_payment_transaction_info" resource="default" engine="innodb" comment="postfinancecheckout Payment Transaction Info">
     <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
     <column xsi:type="bigint" name="transaction_id" padding="20" unsigned="true" nullable="false" identity="false" comment="Transaction ID"/>
     <column xsi:type="text" name="state" nullable="false" comment="State"/>
@@ -48,15 +48,15 @@
     <constraint xsi:type="primary" referenceId="PRIMARY">
       <column name="entity_id"/>
     </constraint>
-    <constraint xsi:type="unique" referenceId="WALLEE_PAYMENT_TRANSACTION_INFO_SPACE_ID_TRANSACTION_ID">
+    <constraint xsi:type="unique" referenceId="POSTFINANCECHECKOUT_PAYMENT_TRANSACTION_INFO_SPACE_ID_TRANSACTION_ID">
       <column name="space_id"/>
       <column name="transaction_id"/>
     </constraint>
-    <constraint xsi:type="unique" referenceId="WALLEE_PAYMENT_TRANSACTION_INFO_ORDER_ID">
+    <constraint xsi:type="unique" referenceId="POSTFINANCECHECKOUT_PAYMENT_TRANSACTION_INFO_ORDER_ID">
       <column name="order_id"/>
     </constraint>
   </table>
-  <table name="wallee_payment_method_configuration" resource="default" engine="innodb" comment="wallee Payment Method Configuration">
+  <table name="postfinancecheckout_payment_method_configuration" resource="default" engine="innodb" comment="postfinancecheckout Payment Method Configuration">
     <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
     <column xsi:type="int" name="state" padding="10" unsigned="true" nullable="false" identity="false" comment="State"/>
     <column xsi:type="bigint" name="space_id" padding="20" unsigned="true" nullable="false" identity="false" comment="Space ID"/>
@@ -71,18 +71,18 @@
     <constraint xsi:type="primary" referenceId="PRIMARY">
       <column name="entity_id"/>
     </constraint>
-    <constraint xsi:type="unique" referenceId="WALLEE_PAYMENT_METHOD_CONFIGURATION_SPACE_ID_CONFIGURATION_ID">
+    <constraint xsi:type="unique" referenceId="POSTFINANCECHECKOUT_PAYMENT_METHOD_CONFIGURATION_SPACE_ID_CONFIGURATION_ID">
       <column name="space_id"/>
       <column name="configuration_id"/>
     </constraint>
-    <index referenceId="WALLEE_PAYMENT_METHOD_CONFIGURATION_SPACE_ID" indexType="btree">
+    <index referenceId="POSTFINANCECHECKOUT_PAYMENT_METHOD_CONFIGURATION_SPACE_ID" indexType="btree">
       <column name="space_id"/>
     </index>
-    <index referenceId="WALLEE_PAYMENT_METHOD_CONFIGURATION_CONFIGURATION_ID" indexType="btree">
+    <index referenceId="POSTFINANCECHECKOUT_PAYMENT_METHOD_CONFIGURATION_CONFIGURATION_ID" indexType="btree">
       <column name="configuration_id"/>
     </index>
   </table>
-  <table name="wallee_payment_refund_job" resource="default" engine="innodb" comment="wallee Payment Refund Job">
+  <table name="postfinancecheckout_payment_refund_job" resource="default" engine="innodb" comment="postfinancecheckout Payment Refund Job">
     <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
     <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Id"/>
     <column xsi:type="int" name="invoice_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Invoice Id"/>
@@ -93,14 +93,14 @@
     <constraint xsi:type="primary" referenceId="PRIMARY">
       <column name="entity_id"/>
     </constraint>
-    <constraint xsi:type="unique" referenceId="WALLEE_PAYMENT_REFUND_JOB_ORDER_ID">
+    <constraint xsi:type="unique" referenceId="POSTFINANCECHECKOUT_PAYMENT_REFUND_JOB_ORDER_ID">
       <column name="order_id"/>
     </constraint>
-    <index referenceId="WALLEE_PAYMENT_REFUND_JOB_SPACE_ID" indexType="btree">
+    <index referenceId="POSTFINANCECHECKOUT_PAYMENT_REFUND_JOB_SPACE_ID" indexType="btree">
       <column name="space_id"/>
     </index>
   </table>
-  <table name="wallee_payment_token_info" resource="default" engine="innodb" comment="wallee Payment Token Info">
+  <table name="postfinancecheckout_payment_token_info" resource="default" engine="innodb" comment="postfinancecheckout Payment Token Info">
     <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
     <column xsi:type="bigint" name="token_id" padding="20" unsigned="true" nullable="false" identity="false" comment="Token Id"/>
     <column xsi:type="text" name="state" nullable="false" comment="State"/>
@@ -113,17 +113,17 @@
     <constraint xsi:type="primary" referenceId="PRIMARY">
       <column name="entity_id"/>
     </constraint>
-    <constraint xsi:type="unique" referenceId="WALLEE_PAYMENT_TOKEN_INFO_SPACE_ID_TOKEN_ID">
+    <constraint xsi:type="unique" referenceId="POSTFINANCECHECKOUT_PAYMENT_TOKEN_INFO_SPACE_ID_TOKEN_ID">
       <column name="space_id"/>
       <column name="token_id"/>
     </constraint>
-    <index referenceId="WALLEE_PAYMENT_TOKEN_INFO_CUSTOMER_ID" indexType="btree">
+    <index referenceId="POSTFINANCECHECKOUT_PAYMENT_TOKEN_INFO_CUSTOMER_ID" indexType="btree">
       <column name="customer_id"/>
     </index>
-    <index referenceId="WALLEE_PAYMENT_TOKEN_INFO_PAYMENT_METHOD_ID" indexType="btree">
+    <index referenceId="POSTFINANCECHECKOUT_PAYMENT_TOKEN_INFO_PAYMENT_METHOD_ID" indexType="btree">
       <column name="payment_method_id"/>
     </index>
-    <index referenceId="WALLEE_PAYMENT_TOKEN_INFO_CONNECTOR_ID" indexType="btree">
+    <index referenceId="POSTFINANCECHECKOUT_PAYMENT_TOKEN_INFO_CONNECTOR_ID" indexType="btree">
       <column name="connector_id"/>
     </index>
   </table>
