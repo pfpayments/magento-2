@@ -12,6 +12,7 @@ namespace PostFinanceCheckout\Payment\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
+use PostFinanceCheckout\Payment\Model\ApiClientHeaders;
 
 /**
  * Service to provide PostFinance Checkout API client.
@@ -84,6 +85,8 @@ class ApiClient
                 $client = new \PostFinanceCheckout\Sdk\ApiClient($userId, $this->encrypter->decrypt($applicationKey));
                 $client->setBasePath($this->getBaseGatewayUrl() . '/api');
                 $this->apiClient = $client;
+                $apiClientHeaders = new ApiClientHeaders();
+                $apiClientHeaders->addHeaders($this->apiClient);
             } else {
                 throw new \PostFinanceCheckout\Payment\Model\ApiClientException(
                     'The PostFinance Checkout API user data are incomplete.');
