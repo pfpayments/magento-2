@@ -82,7 +82,12 @@ class CaptureCommand extends AbstractCommand
                         }
                     }
                 }
-                $invoice->setPostfinancecheckoutCapturePending(false);
+
+                if ($invoice instanceof InvoiceInterface) {
+                    $invoice->setPostfinancecheckoutCapturePending(false);
+                } else {
+                    return false;
+                }
             }
 
             if ($transaction->getState() == TransactionState::COMPLETED) {
