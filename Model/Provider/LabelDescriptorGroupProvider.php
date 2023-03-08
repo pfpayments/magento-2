@@ -19,7 +19,6 @@ use PostFinanceCheckout\Sdk\Service\LabelDescriptionGroupService;
  */
 class LabelDescriptorGroupProvider extends AbstractProvider
 {
-
     /**
      *
      * @var ApiClient

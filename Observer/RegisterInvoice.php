@@ -23,7 +23,6 @@ use PostFinanceCheckout\Sdk\Model\TransactionState;
  */
 class RegisterInvoice implements ObserverInterface
 {
-
     /**
      *
      * @var TransactionService

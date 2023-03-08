@@ -30,7 +30,6 @@ use PostFinanceCheckout\Sdk\Service\ChargeAttemptService;
  */
 class TransactionInfoManagement implements TransactionInfoManagementInterface
 {
-
     /**
      *
      * @var Helper

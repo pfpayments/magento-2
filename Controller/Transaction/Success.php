@@ -24,7 +24,6 @@ use PostFinanceCheckout\Sdk\Model\TransactionState;
  */
 class Success extends \PostFinanceCheckout\Payment\Controller\Transaction
 {
-
     /**
      *
      * @var CheckoutSession
@@ -63,14 +62,6 @@ class Success extends \PostFinanceCheckout\Payment\Controller\Transaction
     public function execute()
     {
         $order = $this->getOrder();
-
-        $this->transactionService->waitForTransactionState($order,
-            [
-                TransactionState::AUTHORIZED,
-                TransactionState::COMPLETED,
-                TransactionState::FULFILL
-            ], 5);
-
         if (! $this->successValidator->isValid()) {
             $this->messageManager->addErrorMessage(
                 \__(
