@@ -15,6 +15,7 @@
 	<preference for="PostFinanceCheckout\Payment\Api\PaymentMethodConfigurationManagementInterface" type="PostFinanceCheckout\Payment\Model\PaymentMethodConfigurationManagement" />
 	<preference for="PostFinanceCheckout\Payment\Api\Data\PaymentMethodConfigurationInterface" type="PostFinanceCheckout\Payment\Model\PaymentMethodConfiguration" />
 	<preference for="PostFinanceCheckout\Payment\Api\Data\PaymentMethodConfigurationSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+	<preference for="PostFinanceCheckout\Payment\Api\OrderRepositoryInterface" type="PostFinanceCheckout\Payment\Model\OrderRepository" />
 	<preference for="PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface" type="PostFinanceCheckout\Payment\Model\TransactionInfoRepository" />
 	<preference for="PostFinanceCheckout\Payment\Api\TransactionInfoManagementInterface" type="PostFinanceCheckout\Payment\Model\TransactionInfoManagement" />
 	<preference for="PostFinanceCheckout\Payment\Api\Data\TransactionInfoInterface" type="PostFinanceCheckout\Payment\Model\TransactionInfo" />

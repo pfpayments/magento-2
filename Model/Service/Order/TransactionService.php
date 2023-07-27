@@ -61,6 +61,10 @@ use PostFinanceCheckout\Sdk\Service\TransactionVoidService;
  */
 class TransactionService extends AbstractTransactionService
 {
+	/**
+	 * Number of attempts to call the portal API
+	 */
+	const NUMBER_OF_ATTEMPTS = 3;
 
     /**
      *
@@ -184,7 +188,7 @@ class TransactionService extends AbstractTransactionService
         $spaceId = $order->getPostfinancecheckoutSpaceId();
         $transactionId = $order->getPostfinancecheckoutTransactionId();
 
-        for ($i = 0; $i < 5; $i ++) {
+        for ($i = 0; $i < self::NUMBER_OF_ATTEMPTS; $i ++) {
             try {
                 if ($i > 0) {
                     $transaction = $this->getTransaction($spaceId, $transactionId);
