@@ -46,6 +46,7 @@ class CompletedCommand extends AbstractCommand
      *
      * @param \PostFinanceCheckout\Sdk\Model\Transaction $entity
      * @param Order $order
+     * @return void
      */
     public function execute($entity, Order $order)
     {

@@ -15,7 +15,6 @@ use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
 use PostFinanceCheckout\Payment\Api\RefundJobRepositoryInterface;
 use PostFinanceCheckout\Payment\Api\Data\RefundJobInterface;
-use PostFinanceCheckout\Payment\Model\ApiClient;
 use PostFinanceCheckout\Payment\Model\RefundJobFactory;
 use PostFinanceCheckout\Sdk\Model\RefundCreate;
 use PostFinanceCheckout\Sdk\Model\RefundType;
@@ -49,7 +48,6 @@ class RefundService
      * @param LineItemReductionService $lineItemReductionService
      * @param RefundJobFactory $refundJobFactory
      * @param RefundJobRepositoryInterface $refundJobRepository
-     * @param ApiClient $apiClient
      */
     public function __construct(LineItemReductionService $lineItemReductionService,
         RefundJobFactory $refundJobFactory, RefundJobRepositoryInterface $refundJobRepository)

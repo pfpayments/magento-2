@@ -17,8 +17,6 @@ use Psr\Log\LoggerInterface;
 use PostFinanceCheckout\Payment\Api\RefundJobRepositoryInterface;
 use PostFinanceCheckout\Payment\Helper\Locale as LocaleHelper;
 use PostFinanceCheckout\Payment\Model\ApiClient;
-use PostFinanceCheckout\Payment\Model\RefundJobFactory;
-use PostFinanceCheckout\Payment\Model\Service\LineItemReductionService;
 use PostFinanceCheckout\Payment\Model\Service\RefundService;
 use PostFinanceCheckout\Sdk\Model\RefundState;
 use PostFinanceCheckout\Sdk\Service\RefundService as ApiRefundService;
@@ -43,18 +41,6 @@ class RefundCommand implements CommandInterface
 
     /**
      *
-     * @var LineItemReductionService
-     */
-    private $lineItemReductionService;
-
-    /**
-     *
-     * @var RefundJobFactory
-     */
-    private $refundJobFactory;
-
-    /**
-     *
      * @var RefundJobRepositoryInterface
      */
     private $refundJobRepository;
@@ -75,20 +61,15 @@ class RefundCommand implements CommandInterface
      *
      * @param LoggerInterface $logger
      * @param LocaleHelper $localeHelper
-     * @param LineItemReductionService $lineItemReductionService
-     * @param RefundJobFactory $refundJobFactory
      * @param RefundJobRepositoryInterface $refundJobRepository
      * @param RefundService $refundService
      * @param ApiClient $apiClient
      */
     public function __construct(LoggerInterface $logger, LocaleHelper $localeHelper,
-        LineItemReductionService $lineItemReductionService, RefundJobFactory $refundJobFactory,
         RefundJobRepositoryInterface $refundJobRepository, RefundService $refundService, ApiClient $apiClient)
     {
         $this->logger = $logger;
         $this->localeHelper = $localeHelper;
-        $this->lineItemReductionService = $lineItemReductionService;
-        $this->refundJobFactory = $refundJobFactory;
         $this->refundJobRepository = $refundJobRepository;
         $this->refundService = $refundService;
         $this->apiClient = $apiClient;
