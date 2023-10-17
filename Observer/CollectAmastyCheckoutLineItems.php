@@ -20,6 +20,7 @@ use Magento\Sales\Model\Order\Invoice;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
 use PostFinanceCheckout\Sdk\Model\LineItemCreate;
 use PostFinanceCheckout\Sdk\Model\LineItemType;
+use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Module\ModuleListInterface;
 
 /**
@@ -129,8 +130,12 @@ class CollectAmastyCheckoutLineItems implements ObserverInterface
 
     /**
      *
-     * @param float $amount
+     * @param Quote|Order $entity
      * @param string $currency
+     * @param float $amount
+     * @param float $taxAmount
+     * @param string $code
+     * @param string $label
      * @return LineItemCreate
      */
     private function createGiftWrapLineItem($amount, $currency)

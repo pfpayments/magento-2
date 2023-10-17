@@ -20,7 +20,6 @@ interface PaymentMethodConfigurationManagementInterface
 
     /**
      * Synchronizes the payment method configurations from PostFinance Checkout.
-     * @return void
      */
     public function synchronize();
 
@@ -28,7 +27,6 @@ interface PaymentMethodConfigurationManagementInterface
      * Updates the payment method configuration information.
      *
      * @param \PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration
-     * @return void
      */
     public function update(\PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration);
 }

@@ -43,7 +43,6 @@ class LineItemReduction extends AbstractHelper
      * @param \PostFinanceCheckout\Sdk\Model\LineItem[] $lineItems
      * @param \PostFinanceCheckout\Sdk\Model\LineItemReduction[] $reductions
      * @param string $currency
-     * @return float
      */
     public function getReducedAmount(array $lineItems, array $reductions, $currency)
     {

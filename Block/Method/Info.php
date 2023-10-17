@@ -16,7 +16,6 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Backend\Helper\Data as urlBackendHelper;
-use PostFinanceCheckout\Payment\Api\Data\TransactionInfoInterface;
 use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
 use PostFinanceCheckout\Payment\Helper\Document as DocumentHelper;
@@ -94,7 +93,7 @@ class Info extends \Magento\Payment\Block\Info
 
     /**
      *
-     * @var TransactionInfoInterface|bool
+     * @var \PostFinanceCheckout\Payment\Model\TransactionInfo
      */
     private $transaction;
 
@@ -267,7 +266,7 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Gets the transaction info or false if not available.
      *
-     * @return TransactionInfoInterface|bool
+     * @return \PostFinanceCheckout\Payment\Model\TransactionInfo|false
      */
     #[\ReturnTypeWillChange]
     public function getTransaction()

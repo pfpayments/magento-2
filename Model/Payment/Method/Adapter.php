@@ -20,7 +20,6 @@ use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
-use PostFinanceCheckout\Payment\Api\Data\PaymentMethodConfigurationInterface;
 use PostFinanceCheckout\Payment\Api\PaymentMethodConfigurationRepositoryInterface;
 use PostFinanceCheckout\Payment\Block\Method\Form;
 use PostFinanceCheckout\Payment\Block\Method\Info;
@@ -80,7 +79,7 @@ class Adapter extends \Magento\Payment\Model\Method\Adapter
 
     /**
      *
-     * @var PaymentMethodConfigurationInterface
+     * @var \PostFinanceCheckout\Payment\Model\PaymentMethodConfiguration
      */
     private $paymentMethodConfiguration;
 
