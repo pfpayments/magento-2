@@ -1,12 +1,13 @@
 <?php
 /**
- * PostFinance Checkout Magento 2
+ PostFinance Checkout Magento 2
  *
- * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html/).
+ * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
  * @package PostFinanceCheckout_Payment
- * @author wallee AG (http://www.wallee.com/)
+ * @author wallee AG (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html)
  * @license http://www.apache.org/licenses/LICENSE-2.0  Apache Software License (ASL 2.0)
+
  */
 namespace PostFinanceCheckout\Payment\Observer;
 
@@ -45,7 +46,7 @@ class CartEventListener implements ObserverInterface
 
     /**
      * This event listener was created appositely to clear the checkout session whenever the cart is changed.
-     * By cleaning the checkout session, we impose to call the Wallee Portal and update the transaction
+     * By cleaning the checkout session, we impose to call the PostFinanceCheckout Portal and update the transaction
      * @param Observer $observer
      * @return void
      */
