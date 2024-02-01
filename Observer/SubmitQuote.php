@@ -255,7 +255,7 @@ class SubmitQuote implements ObserverInterface
     {
         foreach ($order->getInvoiceCollection() as $invoice) {
             /** @var Invoice $invoice */
-            if (\strpos($invoice->getTransactionId(),
+            if (\strpos($invoice->getTransactionId() ?? '',
                 $order->getPostfinancecheckoutSpaceId() . '_' . $order->getPostfinancecheckoutTransactionId()) ===
                 0 && $invoice->getState() != Invoice::STATE_CANCELED) {
                 $invoice->load($invoice->getId());

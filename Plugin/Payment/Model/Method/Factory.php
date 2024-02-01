@@ -46,7 +46,7 @@ class Factory
      */
     public function beforeCreate(\Magento\Payment\Model\Method\Factory $subject, $classname, $data = [])
     {
-        if (strpos($classname, 'postfinancecheckout_payment::') === 0) {
+        if (strpos($classname ?? '', 'postfinancecheckout_payment::') === 0) {
             $configurationId = \substr($classname, \strlen('postfinancecheckout_payment::'));
             $data['code'] = 'postfinancecheckout_payment_' . $configurationId;
             $data['paymentMethodConfigurationId'] = $configurationId;
