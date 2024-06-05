@@ -15,17 +15,20 @@
     <policies>
         <policy id="img-src">
             <values>
-                <value id="postfinancecheckout" type="host">checkout.postfinance.ch</value>
+                <value id="postfinancecheckout-base" type="host">https://app-wallee.com</value>
+                <value id="postfinancecheckout" type="host">https://checkout.postfinance.ch</value>
             </values>
         </policy>
         <policy id="script-src">
             <values>
-                <value id="postfinancecheckout" type="host">checkout.postfinance.ch</value>
+                <value id="postfinancecheckout-base" type="host">https://app-wallee.com</value>
+                <value id="postfinancecheckout" type="host">https://checkout.postfinance.ch</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="postfinancecheckout" type="host">checkout.postfinance.ch</value>
+                <value id="postfinancecheckout-base" type="host">https://app-wallee.com</value>
+                <value id="postfinancecheckout" type="host">https://checkout.postfinance.ch</value>
             </values>
         </policy>
     </policies>
