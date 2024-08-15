@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- 
 /**
- PostFinance Checkout Magento 2
+ * PostFinance Checkout Magento 2
  *
  * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
@@ -15,8 +15,8 @@
 	<default>
 		<postfinancecheckout_payment>
 			<information>
-				<version>2.1.16</version>
-				<sdk_version>4.4.0</sdk_version>
+				<version>2.1.17</version>
+				<sdk_version>4.5.0</sdk_version>
 			</information>
 			<general>
 				<base_gateway_url>https://checkout.postfinance.ch/</base_gateway_url>

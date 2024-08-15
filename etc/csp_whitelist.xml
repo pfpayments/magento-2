@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
 /**
- PostFinance Checkout Magento 2
+ * PostFinance Checkout Magento 2
  *
  * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
@@ -24,6 +24,14 @@
                 <value id="postfinancecheckout-base" type="host">https://app-wallee.com</value>
                 <value id="postfinancecheckout" type="host">https://checkout.postfinance.ch</value>
                 <value id="postfinancecheckout-mfgroup" type="host">https://gmtech.mfgroup.ch</value>
+                <value id="postfinancecheckout-visa" type="host">https://assets.secure.checkout.visa.com</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="postfinancecheckout-base" type="host">https://app-wallee.com</value>
+                <value id="postfinancecheckout" type="host">https://checkout.postfinance.ch</value>
+                <value id="postfinancecheckout-visa" type="host">https://assets.secure.checkout.visa.com</value>
             </values>
         </policy>
         <policy id="frame-src">

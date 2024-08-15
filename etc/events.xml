@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- 
 /**
- PostFinance Checkout Magento 2
+ * PostFinance Checkout Magento 2
  *
  * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
@@ -58,5 +58,9 @@
 
 	<event name="checkout_cart_save_after">
 		<observer name="postfinancecheckout_checkout_cart_save_after" instance="PostFinanceCheckout\Payment\Observer\CartEventListener" />
+	</event>
+
+	<event name="restore_quote">
+		<observer name="postfinancecheckout_restore_quote" instance="PostFinanceCheckout\Payment\Observer\UpdateDeclinedOrderTransaction" />
 	</event>
 </config>
