@@ -63,4 +63,8 @@
 	<event name="restore_quote">
 		<observer name="postfinancecheckout_restore_quote" instance="PostFinanceCheckout\Payment\Observer\UpdateDeclinedOrderTransaction" />
 	</event>
+
+	<event name="postfinancecheckout_validate_and_restore_quote">
+		<observer name="postfinancecheckout_validate_and_restore_quote_observer" instance="PostFinanceCheckout\Payment\Observer\ValidateAndRestoreQuote" />
+	</event>
 </config>

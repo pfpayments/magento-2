@@ -138,6 +138,22 @@ class UpdateTransactionUrls implements ResolverInterface
             // Get the quote using the actual ID
             /** @var Quote $quote */
             $quote = $this->cartRepository->get($quoteId);
+            $spaceId = $quote->getPostfinancecheckoutSpaceId();
+            $transactionId = $quote->getPostfinancecheckoutTransactionId();
+
+            //At this step, if the transaction ID and space ID are empty,
+            //it could be because the enableAvailablePaymentMethodsCheck option is active,
+            //and the quote no longer has these values.
+            if (empty($spaceId) || empty($transactionId)) {
+                //Fetching the JavaScript URL here allows updating the quote
+                //with the current transaction and saving it in the session.
+                $this->transactionQuoteService->getJavaScriptUrl($quote);
+
+                //values from the session
+                $quote = $this->checkoutSession->getQuote();
+                $spaceId = $quote->getPostfinancecheckoutSpaceId();
+                $transactionId = $quote->getPostfinancecheckoutTransactionId();
+            }
 
             //$quoteSession = $this->checkoutSession->getQuote();
             /** @var \PostFinanceCheckout\Payment\Model\ResourceModel\TransactionInfo $transactionInfo */
