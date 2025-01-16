@@ -101,21 +101,23 @@ abstract class AbstractOrderRelatedListener implements ListenerInterface
     public function execute(Request $request)
     {
         $entity = $this->loadEntity($request);
-        $connection = $this->beginTransaction();
+        $order = $this->loadOrder($this->getOrderId($entity));
+
+        if (!($order instanceof Order)) {
+            return;
+        }
+        $transactionId = $order->getPostfinancecheckoutTransactionId();
         try {
-            $order = $this->loadOrder($this->getOrderId($entity));
-            $transactionId = $order->getPostfinancecheckoutTransactionId();
-            if ($order instanceof Order) {
-                if ($order->getPostfinancecheckoutTransactionId() != $this->getTransactionId($entity)) {
-                    $this->logger->warning(
-                        'PostFinance Checkout webhook: The transaction ID on the order ' . $order->getId() .
-                        ' does not match the webhook\'s: ' . $this->getTransactionId($entity));
-                    $connection->commit();
-                    return;
-                }
-                $this->lock($transactionId);
-                $this->process($this->loadEntity($request), $this->loadOrder($order->getId()));
+            $connection = $this->beginTransaction();
+            if ($transactionId != $this->getTransactionId($entity)) {
+                $this->logger->warning(
+                    'PostFinance Checkout webhook: The transaction ID on the order ' . $order->getId() .
+                    ' does not match the webhook\'s: ' . $this->getTransactionId($entity));
+                $connection->commit();
+                return;
             }
+            $this->lock($transactionId);
+            $this->process($this->loadEntity($request), $this->loadOrder($order->getId()));
             $this->unlock($transactionId);
             $connection->commit();
         } catch (\Exception $e) {
