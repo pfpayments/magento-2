@@ -13,7 +13,6 @@
     <column xsi:type="bigint" name="postfinancecheckout_transaction_id" padding="20" unsigned="true" nullable="true" identity="false" comment="postfinancecheckout Payment Transaction Id"/>
     <column xsi:type="boolean" name="postfinancecheckout_authorized" nullable="true" comment="postfinancecheckout Payment Authorized"/>
     <column xsi:type="varchar" name="postfinancecheckout_security_token" nullable="true" length="32" comment="postfinancecheckout Payment Security Token"/>
-    <column xsi:type="timestamp" name="postfinancecheckout_lock" on_update="false" nullable="true" comment="postfinancecheckout Payment Lock"/>
     <index referenceId="SALES_ORDER_POSTFINANCECHECKOUT_SPACE_ID_POSTFINANCECHECKOUT_TRANSACTION_ID" indexType="btree">
       <column name="postfinancecheckout_space_id"/>
       <column name="postfinancecheckout_transaction_id"/>
