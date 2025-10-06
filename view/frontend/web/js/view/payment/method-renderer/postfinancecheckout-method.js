@@ -233,7 +233,7 @@ define([
 		fallbackToPaymentPage: function(){
 			fullScreenLoader.startLoader();
 			if (window.checkoutConfig.postfinancecheckout.paymentPageUrl) {
-				window.location.replace(window.checkoutConfig.postfinancecheckout.paymentPageUrl + "&paymentMethodConfigurationId=" + this.getConfigurationId());
+				window.location.replace(window.checkoutConfig.postfinancecheckout.paymentPageUrl);
 			} else {
 				window.location.replace(urlBuilder.build("postfinancecheckout_payment/checkout/failure"));
 			}

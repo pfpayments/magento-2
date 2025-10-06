@@ -130,7 +130,10 @@ class ConfigProvider implements ConfigProviderInterface
             }
         } else {
             try {
-                $config['postfinancecheckout']['paymentPageUrl'] = $this->transactionService->getPaymentPageUrl($quote);
+                $config['postfinancecheckout']['paymentPageUrl'] = $quote->getStore()->getUrl(
+                    'postfinancecheckout_payment/checkout/paymentPageUrl',
+                    ['_secure' => true]
+                );
             } catch (\Exception $e) {
                 $this->logger->critical($e);
             }
