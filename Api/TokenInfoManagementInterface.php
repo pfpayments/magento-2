@@ -13,11 +13,6 @@ namespace PostFinanceCheckout\Payment\Api;
 
 use PostFinanceCheckout\Payment\Api\Data\TokenInfoInterface;
 
-/**
- * Token info management interface.
- *
- * @api
- */
 interface TokenInfoManagementInterface
 {
 

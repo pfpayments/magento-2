@@ -21,14 +21,12 @@ class TokenInfo extends AbstractDb
 {
 
     /**
-     * Event prefix
      *
      * @var string
      */
     protected $_eventPrefix = 'postfinancecheckout_payment_token_info_resource';
 
     /**
-     * Serializable fields
      *
      * @var array<string, mixed>
      */

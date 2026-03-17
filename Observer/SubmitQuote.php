@@ -99,12 +99,19 @@ class SubmitQuote implements ObserverInterface
      * @param TransactionInfoRepositoryInterface $transactionInfoRepository
      * @param ApiClient $apiClient
      * @param LoggerInterface $logger
+     * @param CheckoutSession $checkoutSession
      */
-    public function __construct(OrderRepositoryInterface $orderRepository, DBTransactionFactory $dbTransactionFactory,
-        Helper $helper, TransactionService $transactionService,
+    public function __construct(
+        OrderRepositoryInterface $orderRepository,
+        DBTransactionFactory $dbTransactionFactory,
+        Helper $helper,
+        TransactionService $transactionService,
         TransactionInfoManagementInterface $transactionInfoManagement,
-        TransactionInfoRepositoryInterface $transactionInfoRepository, ApiClient $apiClient,  LoggerInterface $logger, CheckoutSession $checkoutSession)
-    {
+        TransactionInfoRepositoryInterface $transactionInfoRepository,
+        ApiClient $apiClient,
+        LoggerInterface $logger,
+        CheckoutSession $checkoutSession
+    ) {
         $this->orderRepository = $orderRepository;
         $this->dbTransactionFactory = $dbTransactionFactory;
         $this->helper = $helper;
@@ -116,16 +123,28 @@ class SubmitQuote implements ObserverInterface
         $this->checkoutSession = $checkoutSession;
     }
 
+    /**
+     * Finalize transaction and update order after quote submit.
+     *
+     * @param Observer $observer
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function execute(Observer $observer)
     {
         /** @var Order $order */
         $order = $observer->getOrder();
 
-        try{
+        try {
             $this->logger->debug("SUBMIT-QUOTE-SERVICE::execute - Clear session");
             $this->checkoutSession->unsTransaction();
             $this->checkoutSession->unsPaymentMethods();
-        } catch (LocalizedException $ignored){}
+        } catch (LocalizedException $ignored) {
+            $this->logger->debug(
+                'SUBMIT-QUOTE-SERVICE::execute - Failed to clear session data.',
+                ['exception' => $ignored]
+            );
+        }
 
         $transactionId = $order->getPostfinancecheckoutTransactionId();
         if (! empty($transactionId)) {
@@ -134,28 +153,40 @@ class SubmitQuote implements ObserverInterface
                 throw new LocalizedException(\__('postfinancecheckout_checkout_failure'));
             }
 
-            $transaction = $this->transactionService->getTransaction($order->getPostfinancecheckoutSpaceId(),
-                $order->getPostfinancecheckoutTransactionId());
+            $transaction = $this->transactionService->getTransaction(
+                $order->getPostfinancecheckoutSpaceId(),
+                $order->getPostfinancecheckoutTransactionId()
+            );
             $this->transactionInfoManagement->update($transaction, $order);
 
             $invoice = $this->createInvoice($order);
 
-            $transaction = $this->transactionService->confirmTransaction($transaction, $order, $invoice,
-                $this->helper->isAdminArea(), $order->getPostfinancecheckoutToken());
+            $transaction = $this->transactionService->confirmTransaction(
+                $transaction,
+                $order,
+                $invoice,
+                $this->helper->isAdminArea(),
+                $order->getPostfinancecheckoutToken()
+            );
             $this->transactionInfoManagement->update($transaction, $order);
         }
 
         if ($order->getPostfinancecheckoutChargeFlow() && $this->helper->isAdminArea()) {
             $this->apiClient->getService(ChargeFlowService::class)->applyFlow(
-                $order->getPostfinancecheckoutSpaceId(), $order->getPostfinancecheckoutTransactionId());
+                $order->getPostfinancecheckoutSpaceId(),
+                $order->getPostfinancecheckoutTransactionId()
+            );
 
             if ($order->getPostfinancecheckoutToken() != null) {
-                $this->transactionService->waitForTransactionState($order,
+                $this->transactionService->waitForTransactionState(
+                    $order,
                     [
                         TransactionState::AUTHORIZED,
                         TransactionState::COMPLETED,
                         TransactionState::FULFILL
-                    ], 3);
+                    ],
+                    3
+                );
             }
         }
     }
@@ -183,11 +214,14 @@ class SubmitQuote implements ObserverInterface
             if ($info->getOrderId() != $order->getId()) {
                 return false;
             }
-        } catch (NoSuchEntityException $e) {}
+        } catch (NoSuchEntityException $e) {
+            $this->logger->debug(
+                'Failed to check whether transaction info linked to the order is already linked to another order.',
+                ['exception' => $e]
+            );
+        }
         return true;
     }
-
-
 
     /**
      * Get the transaction info.
@@ -218,7 +252,8 @@ class SubmitQuote implements ObserverInterface
         $invoice = $order->prepareInvoice();
         $invoice->register();
         $invoice->setTransactionId(
-            $order->getPostfinancecheckoutSpaceId() . '_' . $order->getPostfinancecheckoutTransactionId());
+            $order->getPostfinancecheckoutSpaceId() . '_' . $order->getPostfinancecheckoutTransactionId()
+        );
 
         $this->dbTransactionFactory->create()
             ->addObject($order)
@@ -255,13 +290,15 @@ class SubmitQuote implements ObserverInterface
     {
         foreach ($order->getInvoiceCollection() as $invoice) {
             /** @var Invoice $invoice */
-            if (\strpos($invoice->getTransactionId() ?? '',
-                $order->getPostfinancecheckoutSpaceId() . '_' . $order->getPostfinancecheckoutTransactionId()) ===
-                0 && $invoice->getState() != Invoice::STATE_CANCELED) {
+            if (\strpos(
+                $invoice->getTransactionId() ?? '',
+                $order->getPostfinancecheckoutSpaceId() .
+                    '_' . $order->getPostfinancecheckoutTransactionId()
+            ) === 0 && $invoice->getState() != Invoice::STATE_CANCELED
+            ) {
                 $invoice->load($invoice->getId());
                 return $invoice;
             }
         }
     }
-
 }

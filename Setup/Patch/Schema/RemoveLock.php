@@ -23,6 +23,7 @@ class RemoveLock implements SchemaPatchInterface
 
     /**
      * Drops postfinancecheckout_lock column from sales_order table
+     *
      * @return $this|RemoveLock
      */
     public function apply(): self

@@ -34,33 +34,17 @@ class LabelDescriptorProvider extends AbstractProvider
      */
     public function __construct(FrontendInterface $cache, ApiClient $apiClient)
     {
-        parent::__construct($cache, 'postfinancecheckout_payment_label_descriptors',
-            \PostFinanceCheckout\Sdk\Model\LabelDescriptor::class);
+        parent::__construct(
+            $cache,
+            'postfinancecheckout_payment_label_descriptors',
+            \PostFinanceCheckout\Sdk\Model\LabelDescriptor::class
+        );
         $this->apiClient = $apiClient;
     }
 
     /**
-     * Gets the label descriptor by the given id.
+     * Fetch label descriptor ID from the API.
      *
-     * @param string $id
-     * @return \PostFinanceCheckout\Sdk\Model\LabelDescriptor
-     */
-    public function find($id)
-    {
-        return parent::find($id);
-    }
-
-    /**
-     * Gets a list of label descriptors.
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\LabelDescriptor[]
-     */
-    public function getAll()
-    {
-        return parent::getAll();
-    }
-
-    /**
      * @return mixed
      */
     protected function fetchData()
@@ -68,6 +52,12 @@ class LabelDescriptorProvider extends AbstractProvider
         return $this->apiClient->getService(LabelDescriptionService::class)->all();
     }
 
+    /**
+     * Get label descriptor ID from the given entry.
+     *
+     * @param \PostFinanceCheckout\Sdk\Model\LabelDescriptor $entry
+     * @return int
+     */
     protected function getId($entry)
     {
         /** @var \PostFinanceCheckout\Sdk\Model\LabelDescriptor $entry */

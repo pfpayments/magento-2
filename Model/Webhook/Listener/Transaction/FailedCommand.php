@@ -36,6 +36,7 @@ class FailedCommand extends AbstractCommand
     }
 
     /**
+     * Execute failed transaction flow.
      *
      * @param \PostFinanceCheckout\Sdk\Model\Transaction $entity
      * @param Order $order

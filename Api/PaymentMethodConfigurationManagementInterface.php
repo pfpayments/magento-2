@@ -11,16 +11,14 @@
  */
 namespace PostFinanceCheckout\Payment\Api;
 
-/**
- * Payment method configuration management interface.
- *
- * @api
- */
+use PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration;
+
 interface PaymentMethodConfigurationManagementInterface
 {
 
     /**
      * Synchronizes the payment method configurations from PostFinance Checkout.
+     *
      * @return void
      */
     public function synchronize();
@@ -31,5 +29,5 @@ interface PaymentMethodConfigurationManagementInterface
      * @param \PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration
      * @return void
      */
-    public function update(\PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration);
+    public function update(PaymentMethodConfiguration $configuration);
 }

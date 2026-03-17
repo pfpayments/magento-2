@@ -20,6 +20,11 @@ use Magento\Framework\App\Action\Context;
 class RestoreCart extends \PostFinanceCheckout\Payment\Controller\Checkout
 {
 
+    /**
+     * Handle checkout failure and restore the quote if possible.
+     *
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
     public function execute()
     {
         try {
@@ -44,11 +49,12 @@ class RestoreCart extends \PostFinanceCheckout\Payment\Controller\Checkout
     {
         $response = new DataObject();
         $response->setPath('checkout/cart');
-        $this->_eventManager->dispatch('postfinancecheckout_checkout_failure_redirection_path',
+        $this->_eventManager->dispatch(
+            'postfinancecheckout_checkout_failure_redirection_path',
             [
                 'response' => $response
-            ]);
+            ]
+        );
         return $response->getPath();
     }
-
 }
