@@ -12,7 +12,7 @@ This repository contains the Magento 2 extension that enables to process payment
 
 ## Documentation
 
-* [Documentation](@PostFinanceCheckoutDocPath(/docs/en/documentation.html))
+* [Documentation](https://plugin-documentation.postfinance-checkout.ch/pfpayments/magento-2/3.0.0-beta-1/docs/en/documentation.html)
 
 
 ## Support
