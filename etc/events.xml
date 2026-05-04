@@ -67,4 +67,8 @@
 	<event name="postfinancecheckout_validate_and_restore_quote">
 		<observer name="postfinancecheckout_validate_and_restore_quote_observer" instance="PostFinanceCheckout\Payment\Observer\ValidateAndRestoreQuote" />
 	</event>
+
+	<event name="controller_action_predispatch_checkout_cart_index">
+		<observer name="postfinancecheckout_restore_cart_on_cart_page" instance="PostFinanceCheckout\Payment\Observer\RestoreCartOnCartPage" />
+	</event>
 </config>

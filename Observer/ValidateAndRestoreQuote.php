@@ -14,8 +14,9 @@ namespace PostFinanceCheckout\Payment\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Model\Order;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use PostFinanceCheckout\Payment\Model\Service\Order\TransactionService;
+use PostFinanceCheckout\Sdk\Model\Transaction;
 use PostFinanceCheckout\Sdk\Model\TransactionState;
 
 /**
@@ -24,26 +25,26 @@ use PostFinanceCheckout\Sdk\Model\TransactionState;
 class ValidateAndRestoreQuote implements ObserverInterface
 {
     /**
-     * @var Order
-     */
-    private $order;
-
-    /**
      * @var CheckoutSession
      */
     private $checkoutSession;
 
     /**
+     * @var TransactionService
+     */
+    private $transactionService;
+
+    /**
      *
-     * @param Order $order
      * @param CheckoutSession $checkoutSession
+     * @param TransactionService $transactionService
      */
     public function __construct(
-        Order $order,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        TransactionService $transactionService
     ) {
-        $this->order = $order;
         $this->checkoutSession = $checkoutSession;
+        $this->transactionService = $transactionService;
     }
 
     /**
@@ -54,33 +55,50 @@ class ValidateAndRestoreQuote implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $quote = $this->checkoutSession->getQuote();
+        // After placeOrder, the session's current quote is a new empty one.
+        // The quote we need to reactivate is referenced by the last real order.
+        $order = $this->checkoutSession->getLastRealOrder();
 
-        if (!$quote || !$quote->getId()) {
-            throw new LocalizedException(__('No cart to restore.'));
+        // Idempotent: if there's no last order (e.g. restoreQuote already ran
+        // earlier in this request and unset lastRealOrderId), there's nothing
+        // to do — silently return instead of throwing.
+        if (!$order || !$order->getId()) {
+            return;
         }
 
-        // Find any orders associated with the quote
-        $orderCollection = $this->order->getCollection()
-            ->addFieldToFilter('quote_id', $quote->getId());
-
-        if ($orderCollection->getSize()) {
-            /** @var Order $order */
-            $order = $orderCollection->getFirstItem();
-
-            $orderStates = [
-                TransactionState::AUTHORIZED,
-                TransactionState::COMPLETED,
-                TransactionState::FULFILL,
-            ];
-
-            // Prevent restoring if the quote is already paid
-            if (in_array($order->getState(), $orderStates)) {
-                throw new LocalizedException(__('Your cart has already been paid for and cannot be restored.'));
+        // Block restore only when the PostFinance Checkout transaction is in a
+        // terminal paid state. Magento's order state is unreliable here: the
+        // order can sit in `processing` immediately after placeOrder while
+        // the PostFinance Checkout transaction is still CONFIRMED/PROCESSING (e.g.,
+        // the customer is on the 3DS page).
+        $spaceId = $order->getPostfinancecheckoutSpaceId();
+        $transactionId = $order->getPostfinancecheckoutTransactionId();
+        if ($spaceId && $transactionId) {
+            try {
+                $transaction = $this->transactionService->getTransaction($spaceId, $transactionId);
+                if ($transaction instanceof Transaction) {
+                    $paidStates = [
+                        TransactionState::AUTHORIZED,
+                        TransactionState::COMPLETED,
+                        TransactionState::FULFILL,
+                    ];
+                    if (in_array($transaction->getState(), $paidStates, true)) {
+                        throw new LocalizedException(
+                            __('Your cart has already been paid for and cannot be restored.')
+                        );
+                    }
+                }
+            } catch (LocalizedException $e) {
+                throw $e;
+            } catch (\Exception $e) {
+                // If the PostFinance Checkout API is unreachable, fail open and let
+                // the restore proceed — better than stranding the customer.
             }
         }
 
-        // If all validations pass, let the session restore the quote
+        // Reactivates the quote and dispatches `restore_quote`. The abandoned
+        // order stays in `pending_payment` until the PostFinance Checkout webhook
+        // reports FAILED/DECLINED and FailedCommand/DeclineCommand cancels it.
         $this->checkoutSession->restoreQuote();
     }
 }
