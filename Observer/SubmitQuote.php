@@ -135,10 +135,13 @@ class SubmitQuote implements ObserverInterface
         /** @var Order $order */
         $order = $observer->getOrder();
 
+        $transactionId = $order->getPostfinancecheckoutTransactionId();
+
         try {
             $this->logger->debug("SUBMIT-QUOTE-SERVICE::execute - Clear session");
             $this->checkoutSession->unsTransaction();
             $this->checkoutSession->unsPaymentMethods();
+            $this->checkoutSession->unsPostFinanceCheckoutCheckoutEmailAddress();
         } catch (LocalizedException $ignored) {
             $this->logger->debug(
                 'SUBMIT-QUOTE-SERVICE::execute - Failed to clear session data.',
@@ -146,7 +149,6 @@ class SubmitQuote implements ObserverInterface
             );
         }
 
-        $transactionId = $order->getPostfinancecheckoutTransactionId();
         if (! empty($transactionId)) {
             if (! $this->checkTransactionInfo($order)) {
                 $this->cancelOrder($order);
