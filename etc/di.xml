@@ -257,7 +257,7 @@
         </arguments>
     </type>
 
-    <virtualType name="PostFinanceCheckout\Payment\TransactionGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\TransactionGateway">
+    <virtualType name="PostFinanceCheckout\Payment\TransactionGateway" type="PostFinanceCheckout\PluginCore\Sdk\SdkV1\TransactionGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
             <argument name="logger" xsi:type="object">PostFinanceCheckout\PluginCore\Log\LoggerInterface</argument>
