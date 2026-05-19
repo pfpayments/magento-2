@@ -32,6 +32,7 @@
     <preference for="PostFinanceCheckout\PluginCore\Settings\SettingsProviderInterface" type="PostFinanceCheckout\Payment\Model\CoreWebhook\SettingsProvider" />
     <preference for="PostFinanceCheckout\PluginCore\Webhook\StateFetcherInterface" type="PostFinanceCheckout\Payment\Model\CoreWebhook\StateFetcher" />
     <preference for="PostFinanceCheckout\PluginCore\Webhook\WebhookLifecycleHandler" type="PostFinanceCheckout\Payment\Model\CoreWebhook\CompositeWebhookLifecycleHandler" />
+    <preference for="PostFinanceCheckout\PluginCore\Transaction\TransactionGatewayInterface" type="PostFinanceCheckout\Payment\TransactionGateway" />
     <type name="PostFinanceCheckout\Payment\Model\ResourceModel\TokenInfo\Collection\Grid">
         <arguments>
             <argument name="resource" xsi:type="object">PostFinanceCheckout\Payment\Model\ResourceModel\TokenInfo</argument>
@@ -257,7 +258,7 @@
         </arguments>
     </type>
 
-    <virtualType name="PostFinanceCheckout\Payment\TransactionGateway" type="PostFinanceCheckout\PluginCore\Sdk\SdkV1\TransactionGateway">
+    <virtualType name="PostFinanceCheckout\Payment\TransactionGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\TransactionGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
             <argument name="logger" xsi:type="object">PostFinanceCheckout\PluginCore\Log\LoggerInterface</argument>
@@ -356,4 +357,7 @@
             <argument name="logger" xsi:type="object">PostFinanceCheckout\Payment\Logger\WebhookLogger</argument>
         </arguments>
     </type>
+    
+    <preference for="PostFinanceCheckout\Payment\Api\PaymentMetadataManagementInterface" type="PostFinanceCheckout\Payment\Model\PaymentMetadataManagement" />
+    <preference for="PostFinanceCheckout\Payment\Api\GuestPaymentMetadataManagementInterface" type="PostFinanceCheckout\Payment\Model\GuestPaymentMetadataManagement" />
 </config>
