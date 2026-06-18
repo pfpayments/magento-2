@@ -15,7 +15,6 @@ use Magento\Customer\Model\CustomerRegistry;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Quote\Model\Quote;
-use PostFinanceCheckout\Payment\Api\PaymentMethodConfigurationManagementInterface;
 use PostFinanceCheckout\Payment\Model\ApiClient;
 use PostFinanceCheckout\Sdk\Model\Gender;
 use PostFinanceCheckout\Sdk\Model\Transaction;
@@ -41,12 +40,6 @@ abstract class AbstractTransactionService
 
     /**
      *
-     * @var PaymentMethodConfigurationManagementInterface
-     */
-    private $paymentMethodConfigurationManagement;
-
-    /**
-     *
      * @var ApiClient
      */
     private $apiClient;
@@ -61,35 +54,19 @@ abstract class AbstractTransactionService
      *
      * @param ResourceConnection $resource
      * @param CustomerRegistry $customerRegistry
-     * @param PaymentMethodConfigurationManagementInterface $paymentMethodConfigurationManagement
      * @param ApiClient $apiClient
      * @param CookieManagerInterface $cookieManager
      */
     public function __construct(
         ResourceConnection $resource,
         CustomerRegistry $customerRegistry,
-        PaymentMethodConfigurationManagementInterface $paymentMethodConfigurationManagement,
         ApiClient $apiClient,
         CookieManagerInterface $cookieManager
     ) {
         $this->resource = $resource;
         $this->customerRegistry = $customerRegistry;
-        $this->paymentMethodConfigurationManagement = $paymentMethodConfigurationManagement;
         $this->apiClient = $apiClient;
         $this->cookieManager = $cookieManager;
-    }
-
-    /**
-     * Updates the payment method configurations with the given data.
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration[] $paymentMethods
-     * @return void
-     */
-    protected function updatePaymentMethodConfigurations($paymentMethods)
-    {
-        foreach ($paymentMethods as $paymentMethod) {
-            $this->paymentMethodConfigurationManagement->update($paymentMethod);
-        }
     }
 
     /**

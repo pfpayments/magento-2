@@ -9,20 +9,15 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0  Apache Software License (ASL 2.0)
 
  */
-namespace PostFinanceCheckout\Payment\Model\Webhook;
+namespace PostFinanceCheckout\Payment\Compat;
 
 /**
- * Webhook listener pool interface.
+ * Stub base used when Hyvä Checkout module is not present.
+ * PostFinanceCheckout\Payment\Compat\PlaceOrderServiceBase is aliased
+ * to this class so that PlaceOrderService can be declared and reflected
+ * during DI compilation without a fatal errors when AbstractPlaceOrderService
+ * from Hyvä Checkout is not isntalled.
  */
-interface ListenerPoolInterface
+class PlaceOrderServiceFallback
 {
-
-    /**
-     * Retrieves listener.
-     *
-     * @param string $listenerCode
-     * @return ListenerInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
-     */
-    public function get($listenerCode);
 }

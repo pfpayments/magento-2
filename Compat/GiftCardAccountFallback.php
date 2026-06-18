@@ -9,15 +9,15 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0  Apache Software License (ASL 2.0)
 
  */
-namespace PostFinanceCheckout\Payment\Api;
+namespace PostFinanceCheckout\Payment\Compat;
 
-interface PaymentMethodConfigurationManagementInterface
+/**
+ * Stub base used when Magento_GiftCardAccount module is not present.
+ * PostFinanceCheckout\Payment\Compat\GiftCardAccountBase is aliased
+ * to this class so that GiftCardAccountWrapper can be declared and reflected
+ * during DI compilation without fatal errors when GiftCardAccountManagement
+ * from Magento_GiftCardAccount is not isntalled.
+ */
+class GiftCardAccountFallback
 {
-
-    /**
-     * Synchronizes the payment method configurations from PostFinance Checkout.
-     *
-     * @return void
-     */
-    public function synchronize();
 }

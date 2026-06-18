@@ -40,7 +40,7 @@ class Grid extends \PostFinanceCheckout\Payment\Model\ResourceModel\TokenInfo\Co
      * @param EventManager $eventManager
      * @param ResourceModel $resource
      * @param Registry $registry
-     * @param DBAdapter $connection
+     * @param DBAdapter|null $connection
      */
     public function __construct(
         EntityFactoryInterface $entityFactory,
@@ -49,7 +49,7 @@ class Grid extends \PostFinanceCheckout\Payment\Model\ResourceModel\TokenInfo\Co
         EventManager $eventManager,
         ResourceModel $resource,
         Registry $registry,
-        DBAdapter $connection = null
+        ?DBAdapter $connection = null
     ) {
         $this->registry = $registry;
         parent::__construct($entityFactory, $logger, $fetchStrategy, $eventManager, $connection, $resource);

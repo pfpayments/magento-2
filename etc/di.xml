@@ -29,9 +29,14 @@
     <preference for="PostFinanceCheckout\Payment\Api\Data\RefundJobInterface" type="PostFinanceCheckout\Payment\Model\RefundJob" />
     <preference for="PostFinanceCheckout\Payment\Api\Data\RefundJobSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="PostFinanceCheckout\PluginCore\Log\LoggerInterface" type="PostFinanceCheckout\Payment\Logger\PluginCoreLoggerAdapter" />
-    <preference for="PostFinanceCheckout\PluginCore\Settings\SettingsProviderInterface" type="PostFinanceCheckout\Payment\Model\CoreWebhook\SettingsProvider" />
+    <preference for="PostFinanceCheckout\PluginCore\Settings\SettingsProviderInterface" type="PostFinanceCheckout\Payment\Model\Settings\SettingsProvider" />
     <preference for="PostFinanceCheckout\PluginCore\Webhook\StateFetcherInterface" type="PostFinanceCheckout\Payment\Model\CoreWebhook\StateFetcher" />
     <preference for="PostFinanceCheckout\PluginCore\Webhook\WebhookLifecycleHandler" type="PostFinanceCheckout\Payment\Model\CoreWebhook\CompositeWebhookLifecycleHandler" />
+    <preference for="PostFinanceCheckout\PluginCore\Transaction\TransactionGatewayInterface" type="PostFinanceCheckout\Payment\TransactionGateway" />
+    <preference for="PostFinanceCheckout\PluginCore\Webhook\WebhookManagementGatewayInterface" type="PostFinanceCheckout\Payment\WebhookManagementGateway" />
+    <preference for="PostFinanceCheckout\PluginCore\Webhook\WebhookSignatureGatewayInterface" type="PostFinanceCheckout\Payment\WebhookSignatureGateway" />
+    <preference for="PostFinanceCheckout\PluginCore\PaymentMethod\PaymentMethodGatewayInterface" type="PostFinanceCheckout\Payment\PaymentMethodGateway" />
+    <preference for="PostFinanceCheckout\PluginCore\PaymentMethod\PaymentMethodRepositoryInterface" type="PostFinanceCheckout\Payment\Model\PluginCore\PaymentMethodRepository" />
     <preference for="PostFinanceCheckout\PluginCore\Transaction\TransactionGatewayInterface" type="PostFinanceCheckout\Payment\TransactionGateway" />
     <type name="PostFinanceCheckout\Payment\Model\ResourceModel\TokenInfo\Collection\Grid">
         <arguments>
@@ -42,13 +47,6 @@
     <type name="PostFinanceCheckout\Payment\Model\Config\Structure\Reader">
         <arguments>
             <argument name="compiler" xsi:type="object">Magento\Framework\View\TemplateEngine\Xhtml\ConfigCompiler</argument>
-        </arguments>
-    </type>
-
-    <type name="PostFinanceCheckout\Payment\Model\Service\WebhookService">
-        <arguments>
-            <argument name="webhookListenerPool" xsi:type="object">PostFinanceCheckoutWebhookListenerPool</argument>
-            <argument name="urlBuilder" xsi:type="object">Magento\Framework\Url</argument>
         </arguments>
     </type>
 
@@ -127,22 +125,6 @@
         </arguments>
     </type>
 
-    <!-- Webhook Listener Pools -->
-    <virtualType name="PostFinanceCheckoutWebhookListenerPool" type="PostFinanceCheckout\Payment\Model\Webhook\ListenerPool">
-        <arguments>
-            <argument name="listeners" xsi:type="array">
-                <item name="transaction" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\TransactionListener</item>
-                <item name="transactioninvoice" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\TransactionInvoiceListener</item>
-                <item name="deliveryindication" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\DeliveryIndicationListener</item>
-                <item name="transactioncompletion" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\TransactionCompletionListener</item>
-                <item name="refund" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\RefundListener</item>
-                <item name="paymentmethodconfiguration" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\PaymentMethodConfigurationListener</item>
-                <item name="manualtask" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\ManualTaskListener</item>
-                <item name="token" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\TokenListener</item>
-                <item name="tokenversion" xsi:type="string">PostFinanceCheckout\Payment\Model\Webhook\Listener\TokenVersionListener</item>
-            </argument>
-        </arguments>
-    </virtualType>
     <virtualType name="PostFinanceCheckoutTransactionWebhookCommandPool" type="PostFinanceCheckout\Payment\Model\Webhook\Listener\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -244,14 +226,6 @@
         </arguments>
     </type>
 
-    <type name="PostFinanceCheckout\PluginCore\Settings\Settings">
-        <arguments>
-            <argument name="spaceId" xsi:type="number">12345</argument>
-            <argument name="userId" xsi:type="number">67890</argument>
-            <argument name="apiKey" xsi:type="string">dummy-key</argument>
-        </arguments>
-    </type>
-
     <type name="PostFinanceCheckout\PluginCore\Sdk\SdkProvider">
         <arguments>
             <argument name="settings" xsi:type="object">PostFinanceCheckout\PluginCore\Settings\Settings</argument>
@@ -310,6 +284,53 @@
         </arguments>
     </type>
 
+    <virtualType name="PostFinanceCheckout\Payment\WebhookManagementGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\WebhookManagementGateway">
+        <arguments>
+            <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
+            <argument name="logger" xsi:type="object">PostFinanceCheckout\PluginCore\Log\LoggerInterface</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PostFinanceCheckout\Payment\WebhookSignatureGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\WebhookSignatureGateway">
+        <arguments>
+            <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
+            <argument name="logger" xsi:type="object">PostFinanceCheckout\PluginCore\Log\LoggerInterface</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="PostFinanceCheckout\PluginCore\Webhook\WebhookService">
+        <arguments>
+            <argument name="logger" xsi:type="object">PostFinanceCheckout\Payment\Logger\PluginCoreLoggerAdapter</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="PostFinanceCheckout\Payment\PaymentMethodGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\PaymentMethodGateway">
+        <arguments>
+            <argument name="provider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
+            <argument name="logger" xsi:type="object">PostFinanceCheckout\PluginCore\Log\LoggerInterface</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="PostFinanceCheckout\PluginCore\PaymentMethod\PaymentMethodService">
+        <arguments>
+            <argument name="logger" xsi:type="object">PostFinanceCheckout\Payment\Logger\PluginCoreLoggerAdapter</argument>
+        </arguments>
+    </type>
+
+    <type name="PostFinanceCheckout\PluginCore\Transaction\TransactionService">
+        <arguments>
+            <argument name="gateway" xsi:type="object">PostFinanceCheckout\Payment\TransactionGateway</argument>
+            <argument name="logger" xsi:type="object">PostFinanceCheckout\PluginCore\Log\LoggerInterface</argument>
+        </arguments>
+    </type>
+
+    <type name="PostFinanceCheckout\PluginCore\LineItem\LineItemConsistencyService">
+        <arguments>
+            <argument name="settings" xsi:type="object">PostFinanceCheckout\PluginCore\Settings\Settings</argument>
+            <argument name="logger" xsi:type="object">PostFinanceCheckout\PluginCore\Log\LoggerInterface</argument>
+        </arguments>
+    </type>
+
     <type name="PostFinanceCheckout\Payment\Model\CoreWebhook\CompositeWebhookLifecycleHandler">
         <arguments>
             <argument name="handlers" xsi:type="array">
@@ -357,7 +378,7 @@
             <argument name="logger" xsi:type="object">PostFinanceCheckout\Payment\Logger\WebhookLogger</argument>
         </arguments>
     </type>
-    
+
     <preference for="PostFinanceCheckout\Payment\Api\PaymentMetadataManagementInterface" type="PostFinanceCheckout\Payment\Model\PaymentMetadataManagement" />
     <preference for="PostFinanceCheckout\Payment\Api\GuestPaymentMetadataManagementInterface" type="PostFinanceCheckout\Payment\Model\GuestPaymentMetadataManagement" />
 </config>
