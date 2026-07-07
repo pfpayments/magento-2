@@ -5,7 +5,7 @@
  * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
  * @package PostFinanceCheckout_Payment
- * @author wallee AG (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html)
+ * @author PostFinance Ltd (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html)
  * @license http://www.apache.org/licenses/LICENSE-2.0  Apache Software License (ASL 2.0)
 
  */
@@ -70,7 +70,7 @@ class ApiClientHeaders
             self::SHOP_SYSTEM             => 'magento',
             self::SHOP_SYSTEM_VERSION     => $shop_version,
             self::SHOP_SYSTEM_AND_VERSION => 'magento-' . $major_version . '.' . $minor_version,
-            self::PLUGIN_SYSTEM_VERSION   => '3.2.0',
+            self::PLUGIN_SYSTEM_VERSION   => '3.2.1',
         ];
     }
 }

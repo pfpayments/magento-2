@@ -4,7 +4,7 @@
  * This Magento 2 extension enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
  * @package PostFinanceCheckout_Payment
- * @author wallee AG (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html)
+ * @author PostFinance Ltd (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html)
  * @license http://www.apache.org/licenses/LICENSE-2.0  Apache Software License (ASL 2.0)
 
  */
@@ -62,7 +62,11 @@ define([
                 //if the condition is met, then we will update the iframe with the user's billing address,
                 //this will trigger the form to be displayed and the transaction to have a payment method selected before clicking on the place order button.
                 //This will only run once, only if the checkbox is selected.
-                if (methods !== null && methods.length >= 1) {
+                //Note: the single-method case is already handled by the branch above, so this
+                //only covers multiple methods. Using `> 1` (instead of `>= 1`) prevents both
+                //branches from firing for a single method, which would trigger two concurrent
+                //iframe creations and mount a duplicate iframe.
+                if (methods !== null && methods.length > 1) {
                     let _this = this;
                     let _super = this._super;
                     let checkboxId = this.getCode();
@@ -136,7 +140,19 @@ define([
 
             if (this.handler) {
                 this.checkoutHandler.selectPaymentMethod();
+            } else if (this.loadingIframe) {
+                // Iframe creation is already in flight (e.g. triggered by both the
+                // single-method auto-trigger and the checkbox interval, or by repeated
+                // address updates). Without this guard each concurrent call would run
+                // handler.create() and mount a duplicate iframe into the same container.
+                return;
             } else if (this.isActive() && this.checkoutHandler.validateAddresses()) {
+                // Mark creation as in-flight synchronously, before any async work, so a
+                // second invocation is rejected by the guard above. this.handler is only
+                // assigned much later (after the REST + SDK round-trips), so it cannot
+                // serve as the guard here.
+                this.loadingIframe = true;
+
                 // We fetch metadata dynamically to ensure the latest configuration and SDK URL
                 // are used for the transaction. This allows the plugin to react to dynamic changes.
                 fullScreenLoader.startLoader();
@@ -145,6 +161,7 @@ define([
                 this.fetchMetadata().done(function (response) {
                     var data = JSON.parse(response);
                     if (data.error) {
+                        self.loadingIframe = false;
                         $('body').trigger('processStop');
                         fullScreenLoader.stopLoader(true);
                         console.error("PostFinanceCheckout Metadata Error:", data.error);
@@ -155,6 +172,7 @@ define([
                     sdkLoader.load(data.javascriptUrl).then(function () {
                         var handlerFactory = window.IframeCheckoutHandler;
                         if (typeof handlerFactory !== 'function') {
+                            self.loadingIframe = false;
                             $('body').trigger('processStop');
                             fullScreenLoader.stopLoader(true);
                             console.error("PostFinanceCheckout SDK Load failed: IframeCheckoutHandler is not a function");
@@ -166,7 +184,6 @@ define([
                             handlerFactory.configure('replacePrimaryAction', true);
                         }
 
-                        self.loadingIframe = true;
                         self.handler = handlerFactory(data.configurationId);
                         registry[data.configurationId] = self.handler; // Global registry for cross-component access.
 
@@ -199,12 +216,14 @@ define([
                             this.loadingIframe = false;
                         }).bind(self));
                     }).catch(function (error) {
+                        self.loadingIframe = false;
                         $('body').trigger('processStop');
                         fullScreenLoader.stopLoader(true);
                         console.error("PostFinanceCheckout SDK Load failed", error);
                     });
 
                 }).fail(function (error) {
+                    self.loadingIframe = false;
                     $('body').trigger('processStop');
                     fullScreenLoader.stopLoader(true);
                     console.error("PostFinanceCheckout REST Metadata Call failed", error);

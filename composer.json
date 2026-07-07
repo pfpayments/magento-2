@@ -12,12 +12,12 @@
     "license": "Apache-2.0",
     "authors": [
         {
-            "name": "wallee AG",
+            "name": "PostFinance Ltd",
             "homepage": "https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html"
         }
     ],
     "type": "magento2-module",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "require": {
         "php": "~7.4.0||~8.0||~8.1||~8.2||~8.3||~8.4",
         "magento/framework": "^102.0.0||^103.0.0",
