@@ -17,7 +17,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use PostFinanceCheckout\Payment\Api\PaymentMethodConfigurationManagementInterface;
 use PostFinanceCheckout\Payment\Model\Settings\SettingsProvider;
-use PostFinanceCheckout\PluginCore\PaymentMethod\PaymentMethodService as PluginCorePaymentMethodService;
+use PostFinanceCheckout\PluginCore\PaymentMethod\PaymentMethodService;
 
 /**
  * Payment method configuration management service.
@@ -26,7 +26,7 @@ class PaymentMethodConfigurationManagement implements PaymentMethodConfiguration
 {
     /**
      *
-     * @var PluginCorePaymentMethodService
+     * @var PaymentMethodService
      */
     private $pluginCorePaymentMethodService;
 
@@ -50,13 +50,13 @@ class PaymentMethodConfigurationManagement implements PaymentMethodConfiguration
 
     /**
      *
-     * @param PluginCorePaymentMethodService $pluginCorePaymentMethodService
+     * @param PaymentMethodService $pluginCorePaymentMethodService
      * @param SettingsProvider $settingsProvider
      * @param StoreManagerInterface $storeManager
      * @param CacheTypeList $cacheTypeList
      */
     public function __construct(
-        PluginCorePaymentMethodService $pluginCorePaymentMethodService,
+        PaymentMethodService $pluginCorePaymentMethodService,
         SettingsProvider $settingsProvider,
         StoreManagerInterface $storeManager,
         CacheTypeList $cacheTypeList

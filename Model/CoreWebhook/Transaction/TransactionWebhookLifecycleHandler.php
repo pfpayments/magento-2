@@ -8,14 +8,19 @@ use PostFinanceCheckout\Payment\Model\CoreWebhook\BaseOrderLifecycleHandler;
 use PostFinanceCheckout\PluginCore\Webhook\Enum\WebhookListener;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 use PostFinanceCheckout\PluginCore\Sdk\SdkProvider;
+use PostFinanceCheckout\PluginCore\Transaction\Transaction as CoreTransaction;
+use PostFinanceCheckout\PluginCore\Transaction\TransactionGatewayInterface;
+use PostFinanceCheckout\PluginCore\Transaction\Exception\TransactionException;
+use PostFinanceCheckout\PluginCore\Transaction\State as CoreTransactionState;
+use PostFinanceCheckout\PluginCore\Webhook\Enum\LifecycleAction;
+use PostFinanceCheckout\PluginCore\Webhook\TransactionActionResolver;
 use PostFinanceCheckout\Sdk\Model\Transaction;
-use PostFinanceCheckout\Sdk\Model\TransactionState;
 use PostFinanceCheckout\Sdk\Service\TransactionService;
 use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
 use PostFinanceCheckout\Payment\Api\TransactionInfoManagementInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Lock\LockManagerInterface;
-use Psr\Log\LoggerInterface;
+use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -35,6 +40,8 @@ class TransactionWebhookLifecycleHandler extends BaseOrderLifecycleHandler
      * @param ResourceConnection $resource
      * @param SdkProvider $sdkProvider
      * @param LoggerInterface $logger
+     * @param TransactionGatewayInterface $transactionGateway
+     * @param TransactionActionResolver $transactionActionResolver
      */
     public function __construct(
         private readonly TransactionInfoManagementInterface $transactionInfoManagement,
@@ -45,7 +52,9 @@ class TransactionWebhookLifecycleHandler extends BaseOrderLifecycleHandler
         LockManagerInterface $lockManager,
         ResourceConnection $resource,
         SdkProvider $sdkProvider,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        private readonly TransactionGatewayInterface $transactionGateway,
+        private readonly TransactionActionResolver $transactionActionResolver
     ) {
         parent::__construct(
             $resource,
@@ -80,16 +89,21 @@ class TransactionWebhookLifecycleHandler extends BaseOrderLifecycleHandler
     protected function loadSdkEntity(WebhookListener $listener, WebhookContext $context): ?object
     {
         try {
-            /** @var TransactionService $txService */
-            $txService = $this->sdkProvider->getService(TransactionService::class);
-
             $transactionInfo = $this->findTransactionInfoByTransactionId($context->entityId);
 
             if ($transactionInfo) {
-                return $txService->read($transactionInfo->getSpaceId(), $context->entityId);
+                return $this->transactionGateway->find((int) $transactionInfo->getSpaceId(), (int) $context->entityId);
             }
+        } catch (TransactionException $e) {
+            $this->logger->error('Failed to load Transaction.', [
+                'entityId' => $context->entityId,
+                'exception' => $e,
+            ]);
         } catch (\Exception $e) {
-            $this->logger->error("Failed to load SDK Transaction {$context->entityId}: " . $e->getMessage());
+            $this->logger->error('Failed to load Transaction.', [
+                'entityId' => $context->entityId,
+                'exception' => $e,
+            ]);
         }
         return null;
     }
@@ -102,11 +116,11 @@ class TransactionWebhookLifecycleHandler extends BaseOrderLifecycleHandler
      */
     protected function findOrder(object $entity): ?Order
     {
-        if (!$entity instanceof Transaction) {
+        if (!$entity instanceof CoreTransaction) {
             return null;
         }
 
-        $transactionInfo = $this->findTransactionInfoByTransactionId($entity->getId());
+        $transactionInfo = $this->findTransactionInfoByTransactionId($entity->id);
         if ($transactionInfo) {
             return $this->orderRepository->get($transactionInfo->getOrderId());
         }
@@ -123,9 +137,33 @@ class TransactionWebhookLifecycleHandler extends BaseOrderLifecycleHandler
      */
     protected function doPostProcess(?object $entity, ?Order $order, mixed $commandResult): void
     {
-        if ($entity instanceof Transaction && $order instanceof Order) {
-            $this->transactionInfoManagement->update($entity, $order);
+        if (!$entity instanceof CoreTransaction || !$order instanceof Order) {
+            return;
         }
+
+        // TransactionInfoManagementInterface::update() is a public API contract still
+        // typed to (and dependent on) the legacy SDK Transaction model — it reads
+        // payment-connector/payment-method configuration data that plugin-core's domain
+        // Transaction does not carry. Re-read via the SDK here, scoped to this one call,
+        // rather than widen that interface as a side effect of this webhook migration.
+        try {
+            /** @var TransactionService $txService */
+            $txService = $this->sdkProvider->getService(TransactionService::class);
+            $sdkTransaction = $txService->read($entity->spaceId, $entity->id);
+            $this->transactionInfoManagement->update($sdkTransaction, $order);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to sync TransactionInfo.', [
+                'orderId' => $order->getIncrementId(),
+                'transactionId' => $entity->id,
+                'exception' => $e,
+            ]);
+            return;
+        }
+
+        $this->logger->debug('Synced TransactionInfo.', [
+            'orderId' => $order->getIncrementId(),
+            'transactionId' => $entity->id,
+        ]);
     }
 
     /**
@@ -136,8 +174,9 @@ class TransactionWebhookLifecycleHandler extends BaseOrderLifecycleHandler
      */
     protected function doSendEmail(Order $order): void
     {
-        // Only trigger the order email when the transaction is explicitly AUTHORIZED
-        if ($this->context && $this->context->remoteState !== TransactionState::AUTHORIZED) {
+        // Only trigger the order email when the resolved lifecycle action is AUTHORIZE
+        $state = $this->context ? CoreTransactionState::tryFrom($this->context->remoteState) : null;
+        if ($state === null || $this->transactionActionResolver->resolve($state) !== LifecycleAction::AUTHORIZE) {
             return;
         }
 
@@ -168,9 +207,13 @@ class TransactionWebhookLifecycleHandler extends BaseOrderLifecycleHandler
             $this->orderEmailSender->send($order);
         } catch (\Exception $e) {
             // Catch email failures so we don't crash the webhook transaction
-            $this->logger->error(
-                "Failed to send email for order {$order->getIncrementId()}: " . $e->getMessage()
-            );
+            $this->logger->error('Failed to send order confirmation email.', [
+                'orderId' => $order->getIncrementId(),
+                'exception' => $e,
+            ]);
+            return;
         }
+
+        $this->logger->info('Sent order confirmation email.', ['orderId' => $order->getIncrementId()]);
     }
 }

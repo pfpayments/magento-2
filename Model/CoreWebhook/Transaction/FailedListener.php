@@ -13,6 +13,7 @@ use PostFinanceCheckout\PluginCore\Sdk\SdkProvider;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use PostFinanceCheckout\PluginCore\Webhook\Command\WebhookCommandInterface;
 use PostFinanceCheckout\PluginCore\Webhook\Listener\WebhookListenerInterface;
+use PostFinanceCheckout\PluginCore\Webhook\TransactionActionResolver;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 
 class FailedListener implements WebhookListenerInterface
@@ -26,6 +27,7 @@ class FailedListener implements WebhookListenerInterface
      * @param LoggerInterface $logger
      * @param OrderResourceModel $orderResourceModel
      * @param OrderFactory $orderFactory
+     * @param TransactionActionResolver $transactionActionResolver
      */
     public function __construct(
         private readonly OrderRepositoryInterface $orderRepository,
@@ -35,6 +37,7 @@ class FailedListener implements WebhookListenerInterface
         private readonly LoggerInterface $logger,
         private readonly OrderResourceModel $orderResourceModel,
         private readonly OrderFactory $orderFactory,
+        private readonly TransactionActionResolver $transactionActionResolver,
     ) {
     }
 
@@ -54,6 +57,7 @@ class FailedListener implements WebhookListenerInterface
             $this->searchCriteriaBuilder,
             $this->orderResourceModel,
             $this->orderFactory,
+            $this->transactionActionResolver,
         );
     }
 }

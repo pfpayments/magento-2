@@ -18,8 +18,8 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\Exception\NotFoundException;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookProcessor;
 use PostFinanceCheckout\Payment\Model\CoreWebhook\RegistryConfigurer;
-use PostFinanceCheckout\PluginCore\Http\Request as PluginCoreRequest;
-use Psr\Log\LoggerInterface;
+use PostFinanceCheckout\PluginCore\Http\Request as CoreRequest;
+use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 
 /**
  * Frontend controller action to proces webhook requests.
@@ -66,11 +66,16 @@ class Index extends \PostFinanceCheckout\Payment\Controller\Webhook implements C
         http_response_code(500);
         $this->getResponse()->setHttpResponseCode(500);
         try {
+            $pluginCoreRequest = CoreRequest::fromMagentoRequest($this->getRequest());
+            $this->logger->debug('Webhook received.', [
+                'spaceId' => $pluginCoreRequest->get('spaceId'),
+                'entityId' => $pluginCoreRequest->get('entityId'),
+                'listenerEntityTechnicalName' => $pluginCoreRequest->get('listenerEntityTechnicalName'),
+            ]);
             $this->registryConfigurer->configure();
-            $pluginCoreRequest = PluginCoreRequest::fromMagentoRequest($this->getRequest());
             $this->webhookProcessor->process($pluginCoreRequest);
-        } catch (\Exception $e) {
-            $this->logger->critical($e);
+        } catch (\Throwable $e) {
+            $this->logger->critical($e->getMessage(), ['exception' => $e]);
             $this->getResponse()->setHttpResponseCode(500);
             return;
         }

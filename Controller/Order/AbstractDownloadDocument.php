@@ -9,33 +9,28 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0  Apache Software License (ASL 2.0)
 
  */
-namespace PostFinanceCheckout\Payment\Controller\Adminhtml\Order;
+namespace PostFinanceCheckout\Payment\Controller\Order;
 
-use Magento\Backend\App\Action\Context;
-use Magento\Backend\App\Response\Http\FileFactory;
+use Magento\Framework\Registry;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Response\Http\FileFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Controller\Result\ForwardFactory;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Model\Order\CreditmemoRepository;
+use Magento\Sales\Controller\AbstractController\OrderLoaderInterface;
 use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
+use PostFinanceCheckout\Payment\Api\Data\TransactionInfoInterface;
 use PostFinanceCheckout\Payment\Controller\DocumentDownloadResponseTrait;
+use PostFinanceCheckout\Payment\Helper\Document as DocumentHelper;
 use PostFinanceCheckout\PluginCore\Document\DocumentService;
+use PostFinanceCheckout\PluginCore\Document\RenderedDocument;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
-use PostFinanceCheckout\PluginCore\Refund\Refund as CoreRefund;
-use PostFinanceCheckout\PluginCore\Refund\RefundService;
 
 /**
- * Backend controller action to download a refund document.
+ * Base frontend controller that resolves the document for download.
  */
-class DownloadRefund extends \PostFinanceCheckout\Payment\Controller\Adminhtml\Order
+abstract class AbstractDownloadDocument extends \PostFinanceCheckout\Payment\Controller\Order
 {
     use DocumentDownloadResponseTrait;
-
-    /**
-     * Authorization level of a basic admin session
-     *
-     * @see _isAllowed()
-     */
-    public const ADMIN_RESOURCE = 'Magento_Sales::sales_creditmemo';
 
     /**
      *
@@ -51,27 +46,33 @@ class DownloadRefund extends \PostFinanceCheckout\Payment\Controller\Adminhtml\O
 
     /**
      *
+     * @var Registry
+     */
+    private $registry;
+
+    /**
+     *
+     * @var DocumentHelper
+     */
+    protected $documentHelper;
+
+    /**
+     *
+     * @var OrderLoaderInterface
+     */
+    private $orderLoader;
+
+    /**
+     *
      * @var TransactionInfoRepositoryInterface
      */
     private $transactionInfoRepository;
 
     /**
      *
-     * @var CreditmemoRepository
-     */
-    private $creditmemoRepository;
-
-    /**
-     *
-     * @var RefundService
-     */
-    private $pluginCoreRefundService;
-
-    /**
-     *
      * @var DocumentService
      */
-    private $documentService;
+    protected $documentService;
 
     /**
      *
@@ -80,13 +81,13 @@ class DownloadRefund extends \PostFinanceCheckout\Payment\Controller\Adminhtml\O
     private $logger;
 
     /**
-     *
      * @param Context $context
      * @param ForwardFactory $resultForwardFactory
      * @param FileFactory $fileFactory
+     * @param Registry $registry
+     * @param DocumentHelper $documentHelper
+     * @param OrderLoaderInterface $orderLoader
      * @param TransactionInfoRepositoryInterface $transactionInfoRepository
-     * @param CreditmemoRepository $creditmemoRepository
-     * @param RefundService $pluginCoreRefundService
      * @param DocumentService $documentService
      * @param LoggerInterface $logger
      */
@@ -94,59 +95,59 @@ class DownloadRefund extends \PostFinanceCheckout\Payment\Controller\Adminhtml\O
         Context $context,
         ForwardFactory $resultForwardFactory,
         FileFactory $fileFactory,
+        Registry $registry,
+        DocumentHelper $documentHelper,
+        OrderLoaderInterface $orderLoader,
         TransactionInfoRepositoryInterface $transactionInfoRepository,
-        CreditmemoRepository $creditmemoRepository,
-        RefundService $pluginCoreRefundService,
         DocumentService $documentService,
         LoggerInterface $logger
     ) {
         parent::__construct($context);
         $this->resultForwardFactory = $resultForwardFactory;
         $this->fileFactory = $fileFactory;
+        $this->registry = $registry;
+        $this->documentHelper = $documentHelper;
+        $this->orderLoader = $orderLoader;
         $this->transactionInfoRepository = $transactionInfoRepository;
-        $this->creditmemoRepository = $creditmemoRepository;
-        $this->pluginCoreRefundService = $pluginCoreRefundService;
         $this->documentService = $documentService;
         $this->logger = $logger;
     }
 
     /**
-     * Download refund document for the given credit memo.
+     * Download the transaction document if allowed.
      *
      * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
      */
+    #[\ReturnTypeWillChange]
     public function execute()
     {
-        $creditmemoId = $this->getRequest()->getParam('creditmemo_id');
-        if (!$creditmemoId) {
-            return $this->resultForwardFactory->create()->forward('noroute');
+        $result = $this->orderLoader->load($this->_request);
+        if ($result instanceof ResultInterface) {
+            return $result;
         }
 
-        $creditmemo = $this->creditmemoRepository->get($creditmemoId);
-        if ($creditmemo->getData('postfinancecheckout_external_id') == null) {
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $this->registry->registry('current_order');
+        $transaction = $this->transactionInfoRepository->getByOrderId($order->getId());
+        if (!$this->isDocumentDownloadAllowed($transaction, $order->getStoreId())) {
             return $this->resultForwardFactory->create()->forward('noroute');
         }
-
-        $transaction = $this->transactionInfoRepository->getByOrderId($creditmemo->getOrderId());
-        $spaceId = (int) $transaction->getSpaceId();
 
         try {
-            $refund = $this->getRefundByExternalId(
-                $spaceId,
-                (int) $transaction->getTransactionId(),
-                $creditmemo->getData('postfinancecheckout_external_id')
+            $document = $this->getDocument(
+                (int) $transaction->getSpaceId(),
+                (int) $transaction->getTransactionId()
             );
-            $document = $this->documentService->getRefundDocument($spaceId, $refund->id);
         } catch (\Exception $e) {
             $this->logger->error('Document download failed.', [
-                'creditmemoId' => $creditmemoId,
+                'orderId' => $order->getId(),
                 'exception' => $e,
             ]);
             throw $e;
         }
 
         $this->logger->info('Document downloaded.', [
-            'creditmemoId' => $creditmemoId,
+            'orderId' => $order->getId(),
             'document' => $document->title,
         ]);
 
@@ -154,21 +155,20 @@ class DownloadRefund extends \PostFinanceCheckout\Payment\Controller\Adminhtml\O
     }
 
     /**
-     * Finds the refund matching the given external ID among the transaction's refunds.
+     * Checks whether the customer can download document for the given transaction.
+     *
+     * @param TransactionInfoInterface $transaction
+     * @param int|null $storeId
+     * @return bool
+     */
+    abstract protected function isDocumentDownloadAllowed(TransactionInfoInterface $transaction, $storeId): bool;
+
+    /**
+     * Fetches the specific document for the given transaction.
      *
      * @param int $spaceId
      * @param int $transactionId
-     * @param string $externalId
-     * @throws LocalizedException
-     * @return CoreRefund
+     * @return RenderedDocument
      */
-    private function getRefundByExternalId(int $spaceId, int $transactionId, string $externalId): CoreRefund
-    {
-        foreach ($this->pluginCoreRefundService->getRefunds($spaceId, $transactionId) as $refund) {
-            if ($refund->externalId === $externalId) {
-                return $refund;
-            }
-        }
-        throw new LocalizedException(\__('The refund could not be found.'));
-    }
+    abstract protected function getDocument(int $spaceId, int $transactionId): RenderedDocument;
 }

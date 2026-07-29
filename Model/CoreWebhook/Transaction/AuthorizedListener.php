@@ -9,6 +9,7 @@ use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 use PostFinanceCheckout\PluginCore\Webhook\Command\WebhookCommandInterface;
 use PostFinanceCheckout\PluginCore\Webhook\Listener\WebhookListenerInterface;
+use PostFinanceCheckout\PluginCore\Webhook\TransactionActionResolver;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\ResourceModel\Order as OrderResourceModel;
@@ -25,6 +26,7 @@ class AuthorizedListener implements WebhookListenerInterface
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderResourceModel $orderResourceModel
      * @param OrderFactory $orderFactory
+     * @param TransactionActionResolver $transactionActionResolver
      */
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -33,6 +35,7 @@ class AuthorizedListener implements WebhookListenerInterface
         private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
         private readonly OrderResourceModel $orderResourceModel,
         private readonly OrderFactory $orderFactory,
+        private readonly TransactionActionResolver $transactionActionResolver,
     ) {
     }
 
@@ -52,6 +55,7 @@ class AuthorizedListener implements WebhookListenerInterface
             $this->searchCriteriaBuilder,
             $this->orderResourceModel,
             $this->orderFactory,
+            $this->transactionActionResolver,
         );
     }
 }

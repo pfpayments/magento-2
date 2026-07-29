@@ -24,7 +24,7 @@ use PostFinanceCheckout\Sdk\Model\EntityQueryFilter;
 use PostFinanceCheckout\Sdk\Model\EntityQueryFilterType;
 use PostFinanceCheckout\Sdk\Model\FailureReason;
 use PostFinanceCheckout\Sdk\Model\Transaction;
-use PostFinanceCheckout\Sdk\Model\TransactionState;
+use PostFinanceCheckout\PluginCore\Transaction\State as CoreTransactionState;
 use PostFinanceCheckout\Sdk\Service\ChargeAttemptService;
 
 /**
@@ -196,8 +196,8 @@ class TransactionInfoManagement implements TransactionInfoManagementInterface
             $transactionInfo->setData(TransactionInfoInterface::FAILURE_URL, $failureUrl);
         }
 
-        if ($transaction->getState() == TransactionState::FAILED
-            || $transaction->getState() == TransactionState::DECLINE) {
+        if ($transaction->getState() == CoreTransactionState::FAILED->value
+            || $transaction->getState() == CoreTransactionState::DECLINE->value) {
             $transactionInfo->setData(
                 TransactionInfoInterface::FAILURE_REASON,
                 $transaction->getFailureReason() instanceof FailureReason ? $transaction->getFailureReason()

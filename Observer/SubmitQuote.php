@@ -24,7 +24,7 @@ use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
 use PostFinanceCheckout\Payment\Model\ApiClient;
 use PostFinanceCheckout\Payment\Model\Service\Order\TransactionService;
-use PostFinanceCheckout\Sdk\Model\TransactionState;
+use PostFinanceCheckout\PluginCore\Transaction\State as CoreTransactionState;
 use PostFinanceCheckout\Sdk\Service\ChargeFlowService;
 use Psr\Log\LoggerInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -182,11 +182,7 @@ class SubmitQuote implements ObserverInterface
             if ($order->getPostfinancecheckoutToken() != null) {
                 $this->transactionService->waitForTransactionState(
                     $order,
-                    [
-                        TransactionState::AUTHORIZED,
-                        TransactionState::COMPLETED,
-                        TransactionState::FULFILL
-                    ],
+                    CoreTransactionState::getPaidLikeValues(),
                     3
                 );
             }

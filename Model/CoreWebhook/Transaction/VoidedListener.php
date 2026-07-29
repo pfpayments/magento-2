@@ -6,6 +6,7 @@ namespace PostFinanceCheckout\Payment\Model\CoreWebhook\Transaction;
 
 use PostFinanceCheckout\PluginCore\Webhook\Command\WebhookCommandInterface;
 use PostFinanceCheckout\PluginCore\Webhook\Listener\WebhookListenerInterface;
+use PostFinanceCheckout\PluginCore\Webhook\TransactionActionResolver;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -24,6 +25,7 @@ class VoidedListener implements WebhookListenerInterface
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderResourceModel $orderResourceModel
      * @param OrderFactory $orderFactory
+     * @param TransactionActionResolver $transactionActionResolver
      */
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -31,7 +33,8 @@ class VoidedListener implements WebhookListenerInterface
         private readonly TransactionInfoRepositoryInterface $transactionInfoRepository,
         private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
         private readonly OrderResourceModel $orderResourceModel,
-        private readonly OrderFactory $orderFactory
+        private readonly OrderFactory $orderFactory,
+        private readonly TransactionActionResolver $transactionActionResolver
     ) {
     }
 
@@ -50,7 +53,8 @@ class VoidedListener implements WebhookListenerInterface
             $this->transactionInfoRepository,
             $this->searchCriteriaBuilder,
             $this->orderResourceModel,
-            $this->orderFactory
+            $this->orderFactory,
+            $this->transactionActionResolver
         );
     }
 }

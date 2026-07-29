@@ -11,11 +11,13 @@
  */
 namespace PostFinanceCheckout\Payment\Gateway\Command;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
-use PostFinanceCheckout\Payment\Helper\Locale as LocaleHelper;
-use PostFinanceCheckout\Payment\Model\Service\Order\TransactionService;
-use PostFinanceCheckout\Sdk\Model\TransactionVoidState;
+use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
+use PostFinanceCheckout\PluginCore\Transaction\Completion\TransactionCompletionService;
+use PostFinanceCheckout\PluginCore\Transaction\Exception\TransactionException;
+use PostFinanceCheckout\PluginCore\Transaction\Completion\State as CoreState;
 
 /**
  * Payment gateway command to void a payment.
@@ -25,25 +27,13 @@ class VoidCommand implements CommandInterface
 
     /**
      *
-     * @var LocaleHelper
+     * @param TransactionCompletionService $completionService
+     * @param LoggerInterface $logger
      */
-    private $localeHelper;
-
-    /**
-     *
-     * @var TransactionService
-     */
-    private $orderTransactionService;
-
-    /**
-     *
-     * @param LocaleHelper $localeHelper
-     * @param TransactionService $orderTransactionService
-     */
-    public function __construct(LocaleHelper $localeHelper, TransactionService $orderTransactionService)
-    {
-        $this->localeHelper = $localeHelper;
-        $this->orderTransactionService = $orderTransactionService;
+    public function __construct(
+        private readonly TransactionCompletionService $completionService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -51,22 +41,38 @@ class VoidCommand implements CommandInterface
      *
      * @param array $commandSubject
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
-    public function execute(array $commandSubject)
+    public function execute(array $commandSubject): void
     {
         /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = SubjectReader::readPayment($commandSubject)->getPayment();
+        $order = $payment->getOrder();
 
-        $void = $this->orderTransactionService->void($payment->getOrder());
-        if ($void->getState() == TransactionVoidState::FAILED) {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                \__(
-                    'The void of the payment failed on the gateway: %1',
-                    $this->localeHelper->translate($void->getFailureReason()
-                    ->getDescription())
-                )
+        try {
+            $completion = $this->completionService->void(
+                (int) $order->getPostfinancecheckoutSpaceId(),
+                (int) $order->getPostfinancecheckoutTransactionId()
+            );
+        } catch (TransactionException $e) {
+            $this->logger->error('Void failed on the gateway.', [
+                'orderId' => $order->getIncrementId(),
+                'exception' => $e,
+            ]);
+            throw new LocalizedException(
+                \__('The void of the payment failed on the gateway: %1', $e->getMessage())
             );
         }
+
+        if ($completion->state === CoreState::FAILED) {
+            $this->logger->error('Void was rejected by the gateway.', [
+                'orderId' => $order->getIncrementId(),
+            ]);
+            throw new \Magento\Framework\Exception\LocalizedException(
+                \__('The capture of the invoice failed on the gateway.')
+            );
+        }
+
+        $this->logger->info('Void completed.', ['orderId' => $order->getIncrementId()]);
     }
 }

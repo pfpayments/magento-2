@@ -19,6 +19,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use PostFinanceCheckout\Payment\Api\TokenInfoRepositoryInterface;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
+use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use PostFinanceCheckout\Sdk\Model\Token;
 
 /**
@@ -53,21 +54,30 @@ class InitializeCommand implements CommandInterface
 
     /**
      *
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     *
      * @param CartRepositoryInterface $quoteRepository
      * @param Random $random
      * @param Helper $helper
      * @param TokenInfoRepositoryInterface $tokenInfoRepository
+     * @param LoggerInterface $logger
      */
     public function __construct(
         CartRepositoryInterface $quoteRepository,
         Random $random,
         Helper $helper,
-        TokenInfoRepositoryInterface $tokenInfoRepository
+        TokenInfoRepositoryInterface $tokenInfoRepository,
+        LoggerInterface $logger
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->random = $random;
         $this->helper = $helper;
         $this->tokenInfoRepository = $tokenInfoRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -98,11 +108,17 @@ class InitializeCommand implements CommandInterface
         $quote = $this->quoteRepository->get($order->getQuoteId());
 
         if (! $quote->getPostfinancecheckoutSpaceId() || ! $quote->getPostfinancecheckoutTransactionId()) {
+            $this->logger->error('Initialize failed: no transaction set on the quote.', [
+                'quoteId' => $quote->getId(),
+            ]);
             throw new \InvalidArgumentException('The PostFinance Checkout payment transaction is not set on the quote.');
         }
 
         if ($order->getPostfinancecheckoutSpaceId() != null ||
             $order->getPostfinancecheckoutTransactionId() != null) {
+            $this->logger->error('Initialize failed: transaction already set on the order.', [
+                'orderId' => $order->getIncrementId(),
+            ]);
             throw new \InvalidArgumentException(
                 'The PostFinance Checkout payment transaction has already been set on the order.'
             );
@@ -121,6 +137,11 @@ class InitializeCommand implements CommandInterface
             $order->setPostfinancecheckoutChargeFlow(true);
             $order->setPostfinancecheckoutToken($this->getToken($quote));
         }
+
+        $this->logger->info('Initialize completed.', [
+            'quoteId' => $quote->getId(),
+            'transactionId' => $quote->getPostfinancecheckoutTransactionId(),
+        ]);
     }
 
     /**
