@@ -11,7 +11,7 @@
  */
 namespace PostFinanceCheckout\Payment\Block\Method;
 
-use PostFinanceCheckout\Sdk\Model\LabelDescriptorGroup;
+use PostFinanceCheckout\PluginCore\GlobalData\LabelDescriptorGroup\LabelDescriptorGroup;
 
 /**
  * Holds information about a label group that are needed to render the labels in the backend.
@@ -49,17 +49,17 @@ class LabelGroup
      */
     public function getId()
     {
-        return $this->descriptor->getId();
+        return $this->descriptor->id;
     }
 
     /**
      * Gets the group descriptor's name.
      *
-     * @return array
+     * @return array|string|null
      */
     public function getName()
     {
-        return $this->descriptor->getName();
+        return $this->descriptor->name->jsonSerialize();
     }
 
     /**
@@ -69,7 +69,7 @@ class LabelGroup
      */
     public function getWeight()
     {
-        return $this->descriptor->getWeight();
+        return $this->descriptor->weight;
     }
 
     /**

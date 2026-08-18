@@ -12,7 +12,7 @@
 namespace PostFinanceCheckout\Payment\Api;
 
 use Magento\Sales\Model\Order;
-use PostFinanceCheckout\Sdk\Model\Transaction;
+use PostFinanceCheckout\PluginCore\Transaction\Transaction;
 
 interface TransactionInfoManagementInterface
 {

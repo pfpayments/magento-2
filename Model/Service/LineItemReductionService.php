@@ -16,7 +16,7 @@ use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\Sales\Model\Order\Creditmemo;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
 use PostFinanceCheckout\Payment\Helper\LineItemReduction as LineItemReductionHelper;
-use PostFinanceCheckout\PluginCore\Currency\CurrencyRoundingService;
+use PostFinanceCheckout\PluginCore\GlobalData\Currency\CurrencyRoundingService;
 use PostFinanceCheckout\PluginCore\Refund\RefundService as CoreRefundService;
 
 /**

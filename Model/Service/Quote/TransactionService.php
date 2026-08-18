@@ -20,7 +20,6 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Store\Model\ScopeInterface;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
-use PostFinanceCheckout\Payment\Model\ApiClient;
 use PostFinanceCheckout\Payment\Model\CustomerIdManipulationException;
 use PostFinanceCheckout\Payment\Model\PluginCore\QuoteTransactionPersistenceFactory;
 use PostFinanceCheckout\Payment\Model\Service\AbstractTransactionService;
@@ -102,7 +101,6 @@ class TransactionService extends AbstractTransactionService
      * @param Helper $helper
      * @param ScopeConfigInterface $scopeConfig
      * @param CustomerRegistry $customerRegistry
-     * @param ApiClient $apiClient
      * @param CookieManagerInterface $cookieManager
      * @param LineItemService $lineItemService
      * @param CheckoutSession $checkoutSession
@@ -114,7 +112,6 @@ class TransactionService extends AbstractTransactionService
         Helper $helper,
         ScopeConfigInterface $scopeConfig,
         CustomerRegistry $customerRegistry,
-        ApiClient $apiClient,
         CookieManagerInterface $cookieManager,
         LineItemService $lineItemService,
         CheckoutSession $checkoutSession,
@@ -124,7 +121,6 @@ class TransactionService extends AbstractTransactionService
     ) {
         parent::__construct(
             $customerRegistry,
-            $apiClient,
             $cookieManager
         );
         $this->helper = $helper;
@@ -249,7 +245,6 @@ class TransactionService extends AbstractTransactionService
      * @param Quote $quote
      * @return \PostFinanceCheckout\PluginCore\PaymentMethod\PaymentMethodCollection
      * @throws AbstractDomainException
-     * @throws \PostFinanceCheckout\Payment\Model\ApiClientException
      */
     public function getPossiblePaymentMethods(Quote $quote)
     {

@@ -14,7 +14,7 @@ namespace PostFinanceCheckout\Payment\Model\Service;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\WebsiteInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use PostFinanceCheckout\Payment\Model\CoreWebhook\RegistryConfigurer;
+use PostFinanceCheckout\Payment\Model\Webhook\RegistryConfigurer;
 use PostFinanceCheckout\Payment\Model\Settings\SettingsProvider;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookProcessor;

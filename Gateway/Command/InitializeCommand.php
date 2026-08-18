@@ -20,7 +20,8 @@ use Magento\Sales\Model\Order;
 use PostFinanceCheckout\Payment\Api\TokenInfoRepositoryInterface;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
-use PostFinanceCheckout\Sdk\Model\Token;
+use PostFinanceCheckout\PluginCore\Token\State as CoreTokenState;
+use PostFinanceCheckout\PluginCore\Token\Token as CoreToken;
 
 /**
  * Payment gateway command to initialize a payment.
@@ -148,7 +149,7 @@ class InitializeCommand implements CommandInterface
      * Retrieve payment token from quote for admin orders.
      *
      * @param Quote $quote
-     * @return void|Token
+     * @return void|CoreToken
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function getToken(Quote $quote)
@@ -157,9 +158,10 @@ class InitializeCommand implements CommandInterface
             $tokenInfoId = $quote->getPayment()->getData('postfinancecheckout_token');
             if ($tokenInfoId) {
                 $tokenInfo = $this->tokenInfoRepository->get($tokenInfoId);
-                $token = new Token();
-                $token->setId($tokenInfo->getTokenId());
-                return $token;
+                return new CoreToken(
+                    id: (int) $tokenInfo->getTokenId(),
+                    state: CoreTokenState::tryFrom($tokenInfo->getState()) ?? CoreTokenState::ACTIVE,
+                );
             }
         }
     }

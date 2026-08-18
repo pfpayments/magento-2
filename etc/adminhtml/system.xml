@@ -23,9 +23,6 @@
 				<field id="version" translate="label" type="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
 					<label>Module Version</label>
 				</field>
-				<field id="sdk_version" translate="label" type="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-					<label>PostFinance Checkout SDK Version</label>
-				</field>
 			</group>
 			<group id="general" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
 				<label>General</label>
