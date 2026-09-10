@@ -169,7 +169,7 @@
     <!-- preference above.                                                  -->
     <!-- =================================================================== -->
 
-    <virtualType name="PostFinanceCheckout\Payment\TransactionGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\TransactionGateway">
+    <virtualType name="PostFinanceCheckout\Payment\TransactionGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\TransactionGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
             <argument name="settings" xsi:type="object">PostFinanceCheckout\PluginCore\Settings\Settings</argument>
@@ -185,14 +185,14 @@
     </type>
 
     <virtualType name="PostFinanceCheckout\Payment\TransactionCompletionGateway"
-                 type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\TransactionCompletionGateway">
+                 type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\TransactionCompletionGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
     <virtualType name="PostFinanceCheckout\Payment\InvoiceGateway"
-                 type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\InvoiceGateway">
+                 type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\InvoiceGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
@@ -210,37 +210,37 @@
         </arguments>
     </type>
 
-    <virtualType name="PostFinanceCheckout\Payment\RefundGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\RefundGateway">
+    <virtualType name="PostFinanceCheckout\Payment\RefundGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\RefundGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="PostFinanceCheckout\Payment\TokenGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\TokenGateway">
+    <virtualType name="PostFinanceCheckout\Payment\TokenGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\TokenGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="PostFinanceCheckout\Payment\DeliveryIndicationGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\DeliveryIndicationGateway">
+    <virtualType name="PostFinanceCheckout\Payment\DeliveryIndicationGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\DeliveryIndicationGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="PostFinanceCheckout\Payment\GlobalDataGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\GlobalDataGateway">
+    <virtualType name="PostFinanceCheckout\Payment\GlobalDataGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\GlobalDataGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="PostFinanceCheckout\Payment\ChargeGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\ChargeGateway">
+    <virtualType name="PostFinanceCheckout\Payment\ChargeGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\ChargeGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="PostFinanceCheckout\Payment\DocumentGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\DocumentGateway">
+    <virtualType name="PostFinanceCheckout\Payment\DocumentGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\DocumentGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
@@ -252,19 +252,19 @@
         </arguments>
     </type>
 
-    <virtualType name="PostFinanceCheckout\Payment\PaymentMethodGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\PaymentMethodGateway">
+    <virtualType name="PostFinanceCheckout\Payment\PaymentMethodGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\PaymentMethodGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="PostFinanceCheckout\Payment\ManualTaskGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\ManualTaskGateway">
+    <virtualType name="PostFinanceCheckout\Payment\ManualTaskGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\ManualTaskGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="PostFinanceCheckout\Payment\WebhookManagementGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\WebhookManagementGateway">
+    <virtualType name="PostFinanceCheckout\Payment\WebhookManagementGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\WebhookManagementGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>
@@ -284,7 +284,7 @@
         </arguments>
     </type>
 
-    <virtualType name="PostFinanceCheckout\Payment\WebhookSignatureGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV1\WebhookSignatureGateway">
+    <virtualType name="PostFinanceCheckout\Payment\WebhookSignatureGateway" type="PostFinanceCheckout\PluginCore\Sdk\WebServiceAPIV2\WebhookSignatureGateway">
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\PluginCore\Sdk\SdkProvider</argument>
         </arguments>

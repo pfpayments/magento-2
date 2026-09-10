@@ -15,7 +15,7 @@
 	<default>
 		<postfinancecheckout_payment>
 			<information>
-				<version>3.4.0</version>
+				<version>3.5.0</version>
 			</information>
 			<general>
 				<base_gateway_url>https://checkout.postfinance.ch/</base_gateway_url>
