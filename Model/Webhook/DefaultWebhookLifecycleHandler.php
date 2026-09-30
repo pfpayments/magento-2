@@ -8,7 +8,7 @@ use PostFinanceCheckout\PluginCore\SharedKernel\AbstractDomainException;
 use PostFinanceCheckout\PluginCore\Webhook\DefaultWebhookLifecycleHandler as CoreDefaultWebhookLifecycleHandler;
 use PostFinanceCheckout\PluginCore\Webhook\Enum\WebhookListener;
 use PostFinanceCheckout\PluginCore\Webhook\Exception\SkippedStepException;
-use PostFinanceCheckout\PluginCore\Webhook\Exception\TransientWebhookException;
+use PostFinanceCheckout\PluginCore\Webhook\Exception\RetryableWebhookException;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 use PostFinanceCheckout\PluginCore\Webhook\StateValidator;
 use Magento\Framework\App\ResourceConnection;
@@ -220,12 +220,12 @@ class DefaultWebhookLifecycleHandler extends CoreDefaultWebhookLifecycleHandler
      * @param string $lockId
      * @param int $attempt
      * @return void
-     * @throws TransientWebhookException
+     * @throws RetryableWebhookException
      */
     private function acquireLockWithRetry(string $lockId, int $attempt): void
     {
         if ($attempt >= self::MAX_LOCK_ATTEMPTS) {
-            throw new TransientWebhookException(
+            throw new RetryableWebhookException(
                 "Max lock wait attempts reached for lock ID: {$lockId}"
             );
         }
