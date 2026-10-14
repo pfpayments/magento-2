@@ -30,6 +30,7 @@ use PostFinanceCheckout\Payment\Helper\LineItem as LineItemHelper;
 use PostFinanceCheckout\Payment\Model\Config\Source\IntegrationMethod;
 use PostFinanceCheckout\Payment\Model\CustomerIdManipulationException;
 use PostFinanceCheckout\Payment\Model\Payment\Method\Adapter as PaymentMethodAdapter;
+use PostFinanceCheckout\Payment\Model\PluginCore\NoOpTransactionPersistence;
 use PostFinanceCheckout\Payment\Model\Service\AbstractTransactionService;
 use PostFinanceCheckout\PluginCore\Address\Address as CoreAddress;
 use PostFinanceCheckout\PluginCore\Customer\CompanyDetails;
@@ -38,6 +39,7 @@ use PostFinanceCheckout\PluginCore\Customer\PersonalDetails;
 use PostFinanceCheckout\PluginCore\LineItem\LineItemCollection;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use PostFinanceCheckout\PluginCore\Transaction\Exception\TransactionException;
+use PostFinanceCheckout\PluginCore\Transaction\Exception\TransactionNotConfirmableException;
 use PostFinanceCheckout\PluginCore\Transaction\Invoice\Invoice as CoreInvoice;
 use PostFinanceCheckout\PluginCore\Transaction\Invoice\InvoiceGatewayInterface;
 use PostFinanceCheckout\PluginCore\Transaction\Invoice\InvoiceSearchCriteria;
@@ -46,6 +48,7 @@ use PostFinanceCheckout\PluginCore\SharedKernel\Url;
 use PostFinanceCheckout\PluginCore\Transaction\State as CoreTransactionState;
 use PostFinanceCheckout\PluginCore\Transaction\TransactionContext;
 use PostFinanceCheckout\PluginCore\Transaction\TransactionGatewayInterface;
+use PostFinanceCheckout\PluginCore\Transaction\TransactionService as CoreTransactionService;
 use PostFinanceCheckout\PluginCore\Token\Token as CoreToken;
 use PostFinanceCheckout\PluginCore\DeliveryIndication\DeliveryIndication as CoreDeliveryIndication;
 use PostFinanceCheckout\PluginCore\DeliveryIndication\DeliveryIndicationGatewayInterface;
@@ -56,11 +59,6 @@ use PostFinanceCheckout\PluginCore\Transaction\Transaction as CoreTransaction;
  */
 class TransactionService extends AbstractTransactionService
 {
-    /**
-     * Number of attempts to call the portal API
-     */
-    public const NUMBER_OF_ATTEMPTS = 3;
-
     /**
      *
      * @var LoggerInterface
@@ -104,12 +102,22 @@ class TransactionService extends AbstractTransactionService
     private $transactionInfoRepository;
 
     /**
-     * Gateway for the two-step update/confirm flow that replaced the legacy
-     * SDK confirm() call.
      *
      * @var TransactionGatewayInterface
      */
     private TransactionGatewayInterface $transactionGateway;
+
+    /**
+     *
+     * @var CoreTransactionService
+     */
+    private CoreTransactionService $coreTransactionService;
+
+    /**
+     *
+     * @var NoOpTransactionPersistence
+     */
+    private NoOpTransactionPersistence $noOpPersistence;
 
     /**
      *
@@ -151,6 +159,8 @@ class TransactionService extends AbstractTransactionService
      * @param EventManagerInterface $eventManager
      * @param CartRepositoryInterface $quoteRepository
      * @param DeliveryIndicationGatewayInterface $deliveryIndicationGateway
+     * @param CoreTransactionService $coreTransactionService
+     * @param NoOpTransactionPersistence $noOpPersistence
      */
     public function __construct(
         Helper $helper,
@@ -167,6 +177,8 @@ class TransactionService extends AbstractTransactionService
         EventManagerInterface $eventManager,
         CartRepositoryInterface $quoteRepository,
         DeliveryIndicationGatewayInterface $deliveryIndicationGateway,
+        CoreTransactionService $coreTransactionService,
+        NoOpTransactionPersistence $noOpPersistence,
     ) {
         parent::__construct(
             $customerRegistry,
@@ -184,6 +196,8 @@ class TransactionService extends AbstractTransactionService
         $this->transactionGateway = $transactionGateway;
         $this->quoteRepository = $quoteRepository;
         $this->deliveryIndicationGateway = $deliveryIndicationGateway;
+        $this->coreTransactionService = $coreTransactionService;
+        $this->noOpPersistence = $noOpPersistence;
     }
 
     /**
@@ -195,17 +209,17 @@ class TransactionService extends AbstractTransactionService
      */
     public function getTransaction($spaceId, $transactionId): CoreTransaction
     {
-        return $this->transactionGateway->get((int) $spaceId, (int) $transactionId);
+        return $this->coreTransactionService->getTransaction((int) $spaceId, (int) $transactionId);
     }
 
     /**
-     * Updates the transaction with the given order's data and confirms it
-     * through the PluginCore two-step gateway flow.
+     * Sends the order's final data to the transaction and confirms it.
      *
-     * The method builds a TransactionContext from the order, pushes it via
-     * TransactionGatewayInterface::update(), then locks the transaction via
-     * TransactionGatewayInterface::confirm(). The retry loop handles
-     * versioning conflicts surfacing as TransactionException.
+     * The data goes out through {@see CoreTransactionService::upsert()}, which may create a
+     * replacement transaction (the current one is no longer PENDING, or the update failed) or
+     * leave the transaction untouched (the update kept conflicting). Neither may be confirmed,
+     * so the checkout fails unless the returned transaction is the order's own and carries the
+     * order's merchant reference, which the pending transaction did not have before.
      *
      * @param CoreTransaction $transaction
      * @param Order $order
@@ -223,72 +237,41 @@ class TransactionService extends AbstractTransactionService
         bool $chargeFlow = false,
         ?CoreToken $token = null,
     ): CoreTransaction {
-        if ($transaction->state === CoreTransactionState::CONFIRMED) {
-            return $transaction;
-        } elseif ($transaction->state !== CoreTransactionState::PENDING) {
-            $this->cancelOrder($order, $invoice);
-            throw new LocalizedException(\__('postfinancecheckout_checkout_failure'));
-        }
-
         $spaceId = (int) $order->getPostfinancecheckoutSpaceId();
         $transactionId = (int) $order->getPostfinancecheckoutTransactionId();
 
-        for ($i = 0; $i < self::NUMBER_OF_ATTEMPTS; $i++) {
-            try {
-                // On retries, re-read the transaction to get the current version and state.
-                if ($i > 0) {
-                    $transaction = $this->getTransaction($spaceId, $transactionId);
-                    if ($transaction->state === CoreTransactionState::CONFIRMED) {
-                        return $transaction;
-                    } elseif ($transaction->state !== CoreTransactionState::PENDING) {
-                        $this->cancelOrder($order, $invoice);
-                        throw new LocalizedException(\__('postfinancecheckout_checkout_failure'));
-                    }
-                }
-
-                if (!empty($transaction->customerId)
-                    && $transaction->customerId != $order->getCustomerId()
-                ) {
-                    throw new CustomerIdManipulationException();
-                }
-
-                // Build the PluginCore context from the order data.
-                $context = $this->buildConfirmationContext(
-                    $order,
-                    $spaceId,
-                    $chargeFlow,
-                    $token,
-                );
-
-                // Step 1: push the order data onto the existing transaction.
-                $this->transactionGateway->update(
-                    $transactionId,
-                    (int) $transaction->version,
-                    $context,
-                );
-
-                // Step 2: lock the transaction to finalize checkout.
-                $this->transactionGateway->confirm($spaceId, $transactionId);
-
-                return $this->getTransaction($spaceId, $transactionId);
-            } catch (TransactionException $e) {
-                // isRetryable() is true for an optimistic-locking version conflict or a
-                // transient connection error; any other failure is permanent, so surface
-                // it immediately with its root cause preserved instead of burning the
-                // remaining attempts on it.
-                if (!$e->isRetryable()) {
-                    throw new LocalizedException(\__('postfinancecheckout_checkout_failure'), $e);
-                }
-                $this->logger->debug(
-                    'Transient failure during transaction confirmation; retrying.',
-                    ['exception' => $e, 'attempt' => $i + 1],
-                );
-            }
+        if (!empty($transaction->customerId)
+            && $transaction->customerId != $order->getCustomerId()
+        ) {
+            throw new CustomerIdManipulationException();
         }
 
-        throw new LocalizedException(
-            \__('postfinancecheckout_checkout_failure'),
-        );
+        try {
+            $context = $this->buildConfirmationContext($order, $spaceId, $chargeFlow, $token);
+            $context->transactionId = $transactionId;
+
+            $upserted = $this->coreTransactionService->upsert($context, $this->noOpPersistence);
+
+            if ($upserted->id !== $transactionId
+                || $upserted->merchantReference !== (string) $order->getIncrementId()
+            ) {
+                $this->logger->error('Order data was not applied to the transaction; refusing to confirm.', [
+                    'orderId' => $order->getIncrementId(),
+                    'orderTransactionId' => $transactionId,
+                    'returnedTransactionId' => $upserted->id,
+                    'returnedMerchantReference' => $upserted->merchantReference,
+                ]);
+                $this->cancelOrder($order, $invoice);
+                throw new LocalizedException(\__('postfinancecheckout_checkout_failure'));
+            }
+
+            return $this->coreTransactionService->confirmTransaction($spaceId, $transactionId);
+        } catch (TransactionNotConfirmableException $e) {
+            $this->cancelOrder($order, $invoice);
+            throw new LocalizedException(\__('postfinancecheckout_checkout_failure'), $e);
+        } catch (TransactionException $e) {
+            throw new LocalizedException(\__('postfinancecheckout_checkout_failure'), $e);
+        }
     }
 
     /**

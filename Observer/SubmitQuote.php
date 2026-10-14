@@ -134,8 +134,6 @@ class SubmitQuote implements ObserverInterface
         /** @var Order $order */
         $order = $observer->getOrder();
 
-        $transactionId = $order->getPostfinancecheckoutTransactionId();
-
         try {
             $this->logger->debug("SUBMIT-QUOTE-SERVICE::execute - Clear session");
             $this->checkoutSession->unsTransaction();
@@ -147,6 +145,8 @@ class SubmitQuote implements ObserverInterface
                 ['exception' => $ignored]
             );
         }
+
+        $transactionId = $order->getPostfinancecheckoutTransactionId();
 
         if (! empty($transactionId)) {
             if (! $this->checkTransactionInfo($order)) {
