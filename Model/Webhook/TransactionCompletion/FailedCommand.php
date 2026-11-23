@@ -12,7 +12,7 @@ use Magento\Sales\Model\OrderFactory;
 use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
 use PostFinanceCheckout\Payment\Model\Webhook\OrderInvoiceTrait;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
-use PostFinanceCheckout\PluginCore\Transaction\Completion\TransactionCompletionGatewayInterface;
+use PostFinanceCheckout\PluginCore\Transaction\Completion\TransactionCompletionService;
 use PostFinanceCheckout\PluginCore\Webhook\Command\WebhookCommand;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 
@@ -30,7 +30,7 @@ class FailedCommand extends WebhookCommand
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderResourceModel $orderResourceModel
      * @param OrderFactory $orderFactory
-     * @param TransactionCompletionGatewayInterface $completionGateway
+     * @param TransactionCompletionService $completionService
      */
     public function __construct(
         WebhookContext $context,
@@ -40,7 +40,7 @@ class FailedCommand extends WebhookCommand
         private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
         private readonly OrderResourceModel $orderResourceModel,
         private readonly OrderFactory $orderFactory,
-        protected readonly TransactionCompletionGatewayInterface $completionGateway,
+        protected readonly TransactionCompletionService $completionService,
     ) {
         parent::__construct($context, $logger);
     }

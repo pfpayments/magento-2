@@ -10,7 +10,7 @@ use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 use PostFinanceCheckout\PluginCore\Sdk\SdkProvider;
 use PostFinanceCheckout\PluginCore\Transaction\Completion\Exception\CompletionException;
 use PostFinanceCheckout\PluginCore\Transaction\Completion\TransactionCompletion;
-use PostFinanceCheckout\PluginCore\Transaction\Completion\TransactionCompletionGatewayInterface;
+use PostFinanceCheckout\PluginCore\Transaction\Completion\TransactionCompletionService;
 use PostFinanceCheckout\PluginCore\Webhook\Exception\RetryableWebhookException;
 use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
 use Magento\Framework\App\ResourceConnection;
@@ -32,7 +32,7 @@ class TransactionCompletionWebhookLifecycleHandler extends BaseOrderLifecycleHan
      * @param ResourceConnection $resource
      * @param SdkProvider $sdkProvider
      * @param LoggerInterface $logger
-     * @param TransactionCompletionGatewayInterface $completionGateway
+     * @param TransactionCompletionService $completionService
      */
     public function __construct(
         TransactionInfoRepositoryInterface $transactionInfoRepository,
@@ -42,7 +42,7 @@ class TransactionCompletionWebhookLifecycleHandler extends BaseOrderLifecycleHan
         ResourceConnection $resource,
         SdkProvider $sdkProvider,
         LoggerInterface $logger,
-        private readonly TransactionCompletionGatewayInterface $completionGateway
+        private readonly TransactionCompletionService $completionService
     ) {
         parent::__construct(
             $resource,
@@ -71,7 +71,7 @@ class TransactionCompletionWebhookLifecycleHandler extends BaseOrderLifecycleHan
     protected function loadSdkEntity(WebhookListener $listener, WebhookContext $context): ?object
     {
         try {
-            return $this->completionGateway->find($context->spaceId, $context->entityId);
+            return $this->completionService->find($context->spaceId, $context->entityId);
         } catch (CompletionException $e) {
             if ($e->isRetryable()) {
                 throw new RetryableWebhookException(

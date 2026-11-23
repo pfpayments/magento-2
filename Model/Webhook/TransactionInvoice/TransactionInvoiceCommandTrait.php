@@ -7,7 +7,7 @@ namespace PostFinanceCheckout\Payment\Model\Webhook\TransactionInvoice;
 use Magento\Sales\Model\Order;
 use PostFinanceCheckout\PluginCore\Transaction\Invoice\Exception\InvoiceException;
 use PostFinanceCheckout\PluginCore\Transaction\Invoice\Invoice;
-use PostFinanceCheckout\PluginCore\Transaction\Invoice\InvoiceGatewayInterface;
+use PostFinanceCheckout\PluginCore\Transaction\Invoice\InvoiceService;
 use PostFinanceCheckout\PluginCore\Webhook\Exception\RetryableWebhookException;
 use PostFinanceCheckout\Payment\Model\Webhook\BaseOrderLookupTrait;
 
@@ -32,7 +32,7 @@ trait TransactionInvoiceCommandTrait
     protected function loadTransactionInvoice(): ?Invoice
     {
         try {
-            return $this->invoiceGateway->find($this->context->spaceId, $this->context->entityId);
+            return $this->invoiceService->find($this->context->spaceId, $this->context->entityId);
         } catch (InvoiceException $e) {
             if ($e->isRetryable()) {
                 throw new RetryableWebhookException(

@@ -15,7 +15,7 @@ use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
 use PostFinanceCheckout\Payment\Api\RefundJobRepositoryInterface;
 use PostFinanceCheckout\Payment\Helper\Data as Helper;
 use PostFinanceCheckout\Payment\Model\Service\Order\TransactionService;
-use PostFinanceCheckout\PluginCore\Refund\RefundGatewayInterface;
+use PostFinanceCheckout\PluginCore\Refund\RefundService as CoreRefundService;
 use PostFinanceCheckout\PluginCore\Log\LoggerInterface;
 use PostFinanceCheckout\PluginCore\Webhook\Command\WebhookCommandInterface;
 use PostFinanceCheckout\PluginCore\Webhook\Listener\WebhookListenerInterface;
@@ -38,7 +38,7 @@ class SuccessfulListener implements WebhookListenerInterface
      * @param TransactionInfoRepositoryInterface $transactionInfoRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param RefundJobRepositoryInterface $refundJobRepository
-     * @param RefundGatewayInterface $pluginCoreRefundGateway
+     * @param CoreRefundService $coreRefundService
      */
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -53,7 +53,7 @@ class SuccessfulListener implements WebhookListenerInterface
         private readonly TransactionInfoRepositoryInterface $transactionInfoRepository,
         private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
         private readonly RefundJobRepositoryInterface $refundJobRepository,
-        private readonly RefundGatewayInterface $pluginCoreRefundGateway
+        private readonly CoreRefundService $coreRefundService
     ) {
     }
 
@@ -79,7 +79,7 @@ class SuccessfulListener implements WebhookListenerInterface
             $this->transactionInfoRepository,
             $this->searchCriteriaBuilder,
             $this->refundJobRepository,
-            $this->pluginCoreRefundGateway
+            $this->coreRefundService
         );
     }
 }

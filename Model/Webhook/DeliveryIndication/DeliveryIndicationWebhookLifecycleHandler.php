@@ -9,7 +9,7 @@ use PostFinanceCheckout\PluginCore\Webhook\Enum\WebhookListener;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 use PostFinanceCheckout\PluginCore\Sdk\SdkProvider;
 use PostFinanceCheckout\PluginCore\DeliveryIndication\DeliveryIndication;
-use PostFinanceCheckout\PluginCore\DeliveryIndication\DeliveryIndicationGatewayInterface;
+use PostFinanceCheckout\PluginCore\DeliveryIndication\DeliveryIndicationService;
 use PostFinanceCheckout\PluginCore\DeliveryIndication\Exception\DeliveryIndicationException;
 use PostFinanceCheckout\PluginCore\Webhook\Exception\RetryableWebhookException;
 use PostFinanceCheckout\Payment\Api\TransactionInfoRepositoryInterface;
@@ -25,9 +25,9 @@ class DeliveryIndicationWebhookLifecycleHandler extends BaseOrderLifecycleHandle
 
     /**
      *
-     * @var DeliveryIndicationGatewayInterface
+     * @var DeliveryIndicationService
      */
-    private $deliveryIndicationGateway;
+    private $deliveryIndicationService;
 
     /**
      *
@@ -38,7 +38,7 @@ class DeliveryIndicationWebhookLifecycleHandler extends BaseOrderLifecycleHandle
      * @param ResourceConnection $resource
      * @param SdkProvider $sdkProvider
      * @param LoggerInterface $logger
-     * @param DeliveryIndicationGatewayInterface $deliveryIndicationGateway
+     * @param DeliveryIndicationService $deliveryIndicationService
      */
     public function __construct(
         TransactionInfoRepositoryInterface $transactionInfoRepository,
@@ -48,7 +48,7 @@ class DeliveryIndicationWebhookLifecycleHandler extends BaseOrderLifecycleHandle
         ResourceConnection $resource,
         SdkProvider $sdkProvider,
         LoggerInterface $logger,
-        DeliveryIndicationGatewayInterface $deliveryIndicationGateway
+        DeliveryIndicationService $deliveryIndicationService
     ) {
         parent::__construct(
             $resource,
@@ -59,7 +59,7 @@ class DeliveryIndicationWebhookLifecycleHandler extends BaseOrderLifecycleHandle
             $searchCriteriaBuilder,
             $sdkProvider
         );
-        $this->deliveryIndicationGateway = $deliveryIndicationGateway;
+        $this->deliveryIndicationService = $deliveryIndicationService;
     }
 
     /**
@@ -78,7 +78,7 @@ class DeliveryIndicationWebhookLifecycleHandler extends BaseOrderLifecycleHandle
     protected function loadSdkEntity(WebhookListener $listener, WebhookContext $context): ?object
     {
         try {
-            return $this->deliveryIndicationGateway->get($context->spaceId, $context->entityId);
+            return $this->deliveryIndicationService->get($context->spaceId, $context->entityId);
         } catch (DeliveryIndicationException $e) {
             if ($e->isRetryable()) {
                 throw new RetryableWebhookException(

@@ -25,7 +25,7 @@ use Magento\GraphQl\Model\Query\ContextInterface;
 use PostFinanceCheckout\Payment\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use PostFinanceCheckout\Payment\Model\Service\Order\TransactionService as TransactionOrderService;
-use PostFinanceCheckout\PluginCore\Transaction\TransactionGatewayInterface;
+use PostFinanceCheckout\PluginCore\Transaction\TransactionService as CoreTransactionService;
 
 class CustomerOrderTransactionSettings implements ResolverInterface
 {
@@ -55,9 +55,9 @@ class CustomerOrderTransactionSettings implements ResolverInterface
 
     /**
      *
-     * @var TransactionGatewayInterface
+     * @var CoreTransactionService
      */
-    private $transactionGateway;
+    private $coreTransactionService;
 
     /**
      *
@@ -76,7 +76,7 @@ class CustomerOrderTransactionSettings implements ResolverInterface
      * @param CheckoutSession $checkoutSession
      * @param GetCustomer $getCustomer
      * @param OrderRepositoryInterface $orderRepository
-     * @param TransactionGatewayInterface $transactionGateway
+     * @param CoreTransactionService $coreTransactionService
      * @param TransactionOrderService $transactionOrderService
      * @param LoggerInterface $logger
      */
@@ -85,7 +85,7 @@ class CustomerOrderTransactionSettings implements ResolverInterface
         CheckoutSession          $checkoutSession,
         GetCustomer              $getCustomer,
         OrderRepositoryInterface $orderRepository,
-        TransactionGatewayInterface $transactionGateway,
+        CoreTransactionService $coreTransactionService,
         TransactionOrderService  $transactionOrderService,
         LoggerInterface          $logger
     ) {
@@ -93,7 +93,7 @@ class CustomerOrderTransactionSettings implements ResolverInterface
         $this->checkoutSession = $checkoutSession;
         $this->getCustomer = $getCustomer;
         $this->logger = $logger;
-        $this->transactionGateway = $transactionGateway;
+        $this->coreTransactionService = $coreTransactionService;
         $this->transactionOrderService = $transactionOrderService;
         $this->orderRepository = $orderRepository;
     }
@@ -149,7 +149,7 @@ class CustomerOrderTransactionSettings implements ResolverInterface
     {
         /** @var \Magento\Sales\Model\Order  $order */
         $order = $this->orderRepository->getOrderByIncrementId($incrementId);
-        $transaction = $this->transactionGateway->find(
+        $transaction = $this->coreTransactionService->findTransaction(
             (int) $order->getPostfinancecheckoutSpaceId(),
             (int) $order->getPostfinancecheckoutTransactionId()
         );

@@ -9,7 +9,7 @@ use PostFinanceCheckout\PluginCore\Webhook\Enum\WebhookListener;
 use PostFinanceCheckout\PluginCore\Webhook\WebhookContext;
 use PostFinanceCheckout\PluginCore\Sdk\SdkProvider;
 use PostFinanceCheckout\PluginCore\Refund\Refund as CoreRefund;
-use PostFinanceCheckout\PluginCore\Refund\RefundGatewayInterface;
+use PostFinanceCheckout\PluginCore\Refund\RefundService as CoreRefundService;
 use PostFinanceCheckout\PluginCore\Refund\Exception\RefundException;
 use PostFinanceCheckout\PluginCore\Webhook\Exception\RetryableWebhookException;
 use PostFinanceCheckout\Payment\Api\RefundJobRepositoryInterface;
@@ -35,7 +35,7 @@ class RefundWebhookLifecycleHandler extends BaseOrderLifecycleHandler
      * @param ResourceConnection $resource
      * @param SdkProvider $sdkProvider
      * @param LoggerInterface $logger
-     * @param RefundGatewayInterface $pluginCoreRefundGateway
+     * @param CoreRefundService $coreRefundService
      */
     public function __construct(
         private readonly RefundJobRepositoryInterface $refundJobRepository,
@@ -47,7 +47,7 @@ class RefundWebhookLifecycleHandler extends BaseOrderLifecycleHandler
         ResourceConnection $resource,
         SdkProvider $sdkProvider,
         LoggerInterface $logger,
-        private readonly RefundGatewayInterface $pluginCoreRefundGateway
+        private readonly CoreRefundService $coreRefundService
     ) {
         parent::__construct(
             $resource,
@@ -77,7 +77,7 @@ class RefundWebhookLifecycleHandler extends BaseOrderLifecycleHandler
     protected function loadSdkEntity(WebhookListener $listener, WebhookContext $context): ?object
     {
         try {
-            return $this->pluginCoreRefundGateway->findById($context->spaceId, $context->entityId);
+            return $this->coreRefundService->findById($context->spaceId, $context->entityId);
         } catch (RefundException $e) {
             if ($e->isRetryable()) {
                 throw new RetryableWebhookException(

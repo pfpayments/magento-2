@@ -14,7 +14,7 @@ namespace PostFinanceCheckout\Payment\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use PostFinanceCheckout\Payment\Model\Payment\Method\Adapter;
-use PostFinanceCheckout\PluginCore\Transaction\TransactionGatewayInterface;
+use PostFinanceCheckout\PluginCore\Transaction\TransactionService as CoreTransactionService;
 
 /**
  * Observer to validate the cancellation of an invoice.
@@ -24,17 +24,17 @@ class CancelInvoice implements ObserverInterface
 
     /**
      *
-     * @var TransactionGatewayInterface
+     * @var CoreTransactionService
      */
-    private $transactionGateway;
+    private $coreTransactionService;
 
     /**
      *
-     * @param TransactionGatewayInterface $transactionGateway
+     * @param CoreTransactionService $coreTransactionService
      */
-    public function __construct(TransactionGatewayInterface $transactionGateway)
+    public function __construct(CoreTransactionService $coreTransactionService)
     {
-        $this->transactionGateway = $transactionGateway;
+        $this->coreTransactionService = $coreTransactionService;
     }
 
     /**
@@ -60,7 +60,7 @@ class CancelInvoice implements ObserverInterface
             if (! $order->getPostfinancecheckoutInvoiceAllowManipulation() &&
                 ! $invoice->getPostfinancecheckoutDerecognized()) {
                 // The invoice can only be cancelled by the merchant if the transaction is in state 'AUTHORIZED'.
-                $transaction = $this->transactionGateway->find(
+                $transaction = $this->coreTransactionService->findTransaction(
                     (int) $order->getPostfinancecheckoutSpaceId(),
                     (int) $order->getPostfinancecheckoutTransactionId()
                 );

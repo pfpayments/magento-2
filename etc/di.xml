@@ -282,6 +282,7 @@
         <arguments>
             <argument name="sdkProvider" xsi:type="object">PostFinanceCheckout\Payment\SdkProvider</argument>
             <argument name="settings" xsi:type="object">PostFinanceCheckout\PluginCore\Settings\Settings</argument>
+            <argument name="signatureGateway" xsi:type="object">PostFinanceCheckout\Payment\WebhookSignatureGateway</argument>
         </arguments>
     </type>
 
